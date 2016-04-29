@@ -14,4 +14,4 @@ clean:
 	rm -f *.o
 
 cleantestoutput:
-	rm -f "testoutput1.txt"
+	rm -f "testoutput.txt"

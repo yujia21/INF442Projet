@@ -4,17 +4,18 @@
 using namespace std;
 
 int main () {
+   //read file
    char* infile = "facebook.dat";
-   
    cout << "File name is : " << infile << endl;
-   
    Relation* relations = new Relation(infile);
-      
+
+   //check if read
    relations->printdata();
    
-   char* outfile = "testoutput1.txt";
-   
+   //write file
+   char* outfile = "testoutput1";
    relations->write(outfile);
+   //relations->write(outfile);
    
    return 0;
 }
