@@ -35,6 +35,26 @@ void Relation::printdata(){
    cout << "Arity : " << this->relations[0].size() << endl;  
 }
 
+void Relation::write(char* outfile){
+   using namespace std; 
+   int size = this->relations.size();
+   if (size == 0){ //use assert or raise exceptions?
+      cout << "No relations to write!" << endl;
+   } else {
+     int arity = this->relations[0].size();
+     ofstream file;
+     file.open(outfile);
+     for (int j = 0; j < size; j++) {
+        for (int i = 0; i < arity; i++) {
+           file << this->relations[j][i]<<" ";
+        }
+        file<<"\n";
+     }
+     file.close();
+   }
+}
+
+
 void Relation::write(char* outfile, int start, int end){
    using namespace std; 
    int size = this->relations.size();

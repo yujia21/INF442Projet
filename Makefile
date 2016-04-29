@@ -12,3 +12,6 @@ task1: Relation.o task1.o
 clean: 
 	rm -f task1
 	rm -f *.o
+
+cleantestoutput:
+	rm -f "testoutput.txt"

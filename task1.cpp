@@ -12,9 +12,9 @@ int main () {
       
    relations->printdata();
    
-   char* outfile = "testoutput.txt";
+   char* outfile = "testoutput1";
    
-   relations->write(outfile,0,2);
+   relations->write(outfile);
    
    return 0;
 }

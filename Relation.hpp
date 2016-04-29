@@ -12,6 +12,7 @@ public:
    
    void printdata();
    
+   void write(char* outfile);   
    void write(char* outfile, int start, int end);
    
 private:

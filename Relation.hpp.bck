@@ -12,7 +12,7 @@ public:
    
    void printdata();
    
-   void write(char* outfile, std::vector<int> r);
+   void write(char* outfile, int start, int end);
    
 private:
 
