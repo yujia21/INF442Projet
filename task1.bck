@@ -1,0 +1,5 @@
+int main () {
+   string instring = "facebook.dat";
+   Relation::Relation(instring)
+   return 0;
+}
