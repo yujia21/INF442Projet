@@ -8,15 +8,22 @@ task1.o: task1.cpp Relation.hpp
 
 task2.o: task2.cpp Relation.hpp
 	$(CC) -c task2.cpp
-        
+
+task3.o: task3.cpp Relation.hpp
+	$(CC) -c task3.cpp
+
 task1: Relation.o task1.o
 	$(CC) Relation.o task1.o -o task1
 
 task2: Relation.o task2.o
 	$(CC) Relation.o task2.o -o task2
 
+task3: Relation.o task3.o
+	$(CC) Relation.o task3.o -o task3
+
 clean: 
 	rm -f task1
+	rm -f task2
 	rm -f task2
 	rm -f *.o
 

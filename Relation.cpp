@@ -33,7 +33,14 @@ Relation::~Relation(){}
 void Relation::printdata(){
    using namespace std;
    cout << "Number of relations : " << this->relations.size() << endl;
-   cout << "Arity : " << this->relations[0].size() << endl;  
+   cout << "Arity : " << this->relations[0].size() << endl;
+   if (!this->variables.empty()){
+      cout << "Variables : ";
+      for (int i = 0; i<this->variables.size();i++){
+         cout << this->variables[i] <<" " ;
+      }
+      cout << endl;
+   }
 }
 
 void Relation::write(char* outfile){
@@ -94,10 +101,11 @@ bool Relation::Order::operator() (const std::vector<int>& a, const std::vector<i
 // TASK 2 : MAIN FUNCTION
 void Relation::sortrelations(std::vector<int> neworder){
    //order [a b c] compares int at a, then b, then c
+   // TO DO : change to assert errors cerr
    using namespace std;
    int size = this->relations.size();
    if (size == 0){ //use assert or raise exceptions?
-      cout << "No relations to sort!" << endl;
+      cerr << "No relations to sort!" << endl;
    } else {
       int arity = this->relations[0].size();
       if (neworder.size()!=arity){
@@ -112,4 +120,39 @@ void Relation::sortrelations(std::vector<int> neworder){
 }
 
 // TASK 3 : JOIN 
-static Relation::join (=Relation r, vector<T> list1, vector<T> list2);
+void Relation::getVariables(std::vector<std::string> newvariables){
+   using namespace std;
+   int size = this->relations.size();   
+   if (size == 0){ //TO DO use assert or raise exceptions?
+      cerr << "No relations yet!" << endl;
+   } else if (newvariables.size()!=this->relations[0].size()){
+      cerr << "Wrong arity size!" << endl;
+   } else {
+      this->variables = newvariables;
+      cout << "New variables initialized!" << endl;
+   }
+}
+   
+
+Relation Relation::join (Relation r){
+   
+   using namespace std;
+   vector<string> commonvar;
+   vector<int> order1; //use this to stock common vars, and to order later on
+   vector<int> order2; 
+
+   //Find common variables
+   
+   
+   //Order R and R', such that restrictions to X have same order
+
+   //Iterate over R and R', call t and t'
+   //If same on X, add all combi that agree with t and t' on X to output
+
+   //Jump to first tuples that disag w t and t'
+   //projX t =/= projXt' -> if go to t or t' depending if projX t or projXt' is smaller
+   
+   //print relations
+   r->getVariables(commonvar);
+   return r;
+}

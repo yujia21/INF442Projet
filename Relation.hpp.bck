@@ -5,8 +5,13 @@
 
 class Relation {
 
-public: 
+private:
 
+   std::vector<std::vector<int> > relations;
+   std::vector<std::string> variables; 
+
+public: 
+   //TASK 1
    Relation(char * infile);
    ~Relation();
    
@@ -14,7 +19,8 @@ public:
    
    void write(char* outfile);   
    void write(char* outfile, int start, int end);
-   
+
+   //TASK 2
    void sortrelations(std::vector<int> order);
    bool importorder(const std::vector<int>& a, const std::vector<int>& b);
    
@@ -24,10 +30,8 @@ public:
      std::vector<int> order;
    };
    
-   static join (Relation r1, Relation r2, vector<T> list1, vector<T> list2);
+   //TASK 3
+   void getVariables(std::vector<std::string>);
+   Relation join (Relation r);
       
-private:
-
-   std::vector<std::vector<int> > relations;
-
 };
