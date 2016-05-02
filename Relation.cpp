@@ -7,6 +7,7 @@
 #include <iterator> //std::istringstream
 #include <algorithm> //std::sort
 
+// TASK 1
 Relation::Relation(char* infile){
 
    using namespace std;
@@ -25,12 +26,6 @@ Relation::Relation(char* infile){
     
    cout << "Read " << this->relations.size() << " lines " << endl;  
    file.close();
-
-   //put in standard order   
-   int arity = this->relations[0].size();
-   for (int i = 0;i<arity;i++){
-      this->order.push_back(i);
-   }
 } 
 
 Relation::~Relation(){}
@@ -39,9 +34,6 @@ void Relation::printdata(){
    using namespace std;
    cout << "Number of relations : " << this->relations.size() << endl;
    cout << "Arity : " << this->relations[0].size() << endl;  
-   for (std::vector<int>::iterator it=this->order.begin(); it!=this->order.end(); ++it)
-     {cout << ' ' << *it;}
-   cout<<endl;
 }
 
 void Relation::write(char* outfile){
@@ -87,15 +79,19 @@ void Relation::write(char* outfile, int start, int end){
    }
 }
 
-bool Relation::importorder(const std::vector<int>& a, const std::vector<int>& b){
+// TASK 2 : ORDER STRUCT
+Relation::Order::Order (std::vector <int> neworder){this->order = neworder;}
+bool Relation::Order::operator() (const std::vector<int>& a, const std::vector<int>& b){
+   using namespace std;
    for ( int i = 0;i<this->order.size();i++ ){
       if ( a[this->order[i]] != b[this->order[i]] ){
          return ( a[this->order[i]] < b[this->order[i]] );
       }
    }
    return true;
-}
+}   
 
+// TASK 2 : MAIN FUNCTION
 void Relation::sortrelations(std::vector<int> neworder){
    //order [a b c] compares int at a, then b, then c
    using namespace std;
@@ -107,9 +103,9 @@ void Relation::sortrelations(std::vector<int> neworder){
       if (neworder.size()!=arity){
         cout << "Order has wrong arity!" << endl;
       } else {
-         this->order = neworder;
-         std::sort (this->relations.begin(), this->relations.end(),
-               (this->importorder)()); //how to call this properly?
+         cout << "Sorting..." <<endl;
+         std::sort (this->relations.begin(),
+               this->relations.end(),Order(neworder)); 
          cout << "Sorted!" <<endl;
       }
    }

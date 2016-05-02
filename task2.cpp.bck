@@ -14,8 +14,10 @@ int main () {
    relations->write(outfile1, 0, 5);
    
    //sort in opposite order
-   vector<int> neworder[2] = {2,1};
-   relation->sortrelations(neworder);
+   static const int arr2[] = {1,0};
+   vector<int> neworder (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );
+
+   relations->sortrelations(neworder);
 
    //write new 
    char* outfile2 = "testoutput2";
