@@ -7,6 +7,7 @@
 #include <iterator> //std::istringstream
 #include <algorithm> //std::sort
 
+// TASK 1
 Relation::Relation(char* infile){
 
    using namespace std;
@@ -78,6 +79,7 @@ void Relation::write(char* outfile, int start, int end){
    }
 }
 
+// TASK 2 : ORDER STRUCT
 Relation::Order::Order (std::vector <int> neworder){this->order = neworder;}
 bool Relation::Order::operator() (const std::vector<int>& a, const std::vector<int>& b){
    using namespace std;
@@ -89,7 +91,7 @@ bool Relation::Order::operator() (const std::vector<int>& a, const std::vector<i
    return true;
 }   
 
-
+// TASK 2 : MAIN FUNCTION
 void Relation::sortrelations(std::vector<int> neworder){
    //order [a b c] compares int at a, then b, then c
    using namespace std;
@@ -108,3 +110,6 @@ void Relation::sortrelations(std::vector<int> neworder){
       }
    }
 }
+
+// TASK 3 : JOIN 
+static Relation::join (Relation r1, Relation r2, vector<T> list1, vector<T> list2);

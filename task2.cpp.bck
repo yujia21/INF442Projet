@@ -5,7 +5,7 @@ using namespace std;
 
 int main () {
    //read file
-   char* infile = "facebook.dat";
+   char* infile = "facebookshort.dat";
    cout << "File name is : " << infile << endl;
    Relation* relations = new Relation(infile);
    

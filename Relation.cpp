@@ -110,3 +110,6 @@ void Relation::sortrelations(std::vector<int> neworder){
       }
    }
 }
+
+// TASK 3 : JOIN 
+static Relation::join (=Relation r, vector<T> list1, vector<T> list2);

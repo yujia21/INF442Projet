@@ -24,6 +24,7 @@ public:
      std::vector<int> order;
    };
    
+   static join (Relation r, std::vector<T> list1, vector<T> list2);
       
 private:
 
