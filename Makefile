@@ -24,7 +24,7 @@ task3: Relation.o task3.o
 clean: 
 	rm -f task1
 	rm -f task2
-	rm -f task2
+	rm -f task3
 	rm -f *.o
 
 cleantestoutput:

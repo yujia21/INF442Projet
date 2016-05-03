@@ -7,7 +7,7 @@ task1.o: task1.cpp Relation.hpp
 	$(CC) -c task1.cpp
 
 task2.o: task2.cpp Relation.hpp
-	$(CC) -c task2.cp
+	$(CC) -c task2.cpp
 
 task3.o: task3.cpp Relation.hpp
 	$(CC) -c task3.cpp

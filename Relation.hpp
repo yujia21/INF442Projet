@@ -8,7 +8,6 @@ class Relation {
 private:
 
    std::vector<std::vector<int> > relations;
-   std::vector<std::string> variables; 
 
 public: 
    //TASK 1
@@ -31,7 +30,7 @@ public:
    };
    
    //TASK 3
-   void getVariables(std::vector<std::string>);
-   Relation join (Relation *r);
+   Relation join (Relation *r, std::vector<std::string> list1,
+   std::vector<std::string> list2);
       
 };
