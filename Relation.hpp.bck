@@ -30,7 +30,7 @@ public:
    };
    
    //TASK 3
-   Relation join (Relation r, std::vector<std::string> list1,
+   std::pair<Relation,std::vector<std::string>> join(Relation *r, std::vector<std::string> list1,
    std::vector<std::string> list2);
       
 };

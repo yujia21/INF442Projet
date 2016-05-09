@@ -18,7 +18,13 @@ int main () {
    vector<string> list2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );   
 
    //join
-   relationsfinal = relations1->join(&(relations2), list1, list2);
+   pair<Relation,vector<string> > final = relations1->join(relations2,list1,list2);
+   *(relationsfinal) = final.first;
+   vector<string>::iterator it;
+   for (it = final.second.begin(); it != final.second.end(); ++it){
+      cout<<*it<<" ";
+   }
+   cout << "\n";
 
    //write new 
    char* outfile = "testoutput";
