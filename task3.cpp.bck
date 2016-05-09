@@ -9,8 +9,7 @@ int main () {
    char* infile2 = "facebookshort2.dat";
    Relation* relations1 = new Relation(infile1);
    Relation* relations2 = new Relation(infile2);
-   Relation* relationsfinal;   
-   
+
    //create lists, import variable names
    static const string arr1[] = {"x1","x2"};
    static const string arr2[] = {"x2","x3"};
@@ -18,10 +17,15 @@ int main () {
    vector<string> list2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );   
 
    //join
-   pair<Relation,vector<string> > final = relations1->join(relations2;list1;list2);
-   *(relationsfinal) = final.first;
+   cout<<"final creating";   
+   
+   //Relation* relationsfinal = relations1->join(relations2,list1,list2);
+   Atom result = relations1->join(relations2,list1,list2);
+   
+   Relation* relationsfinal = result.relations;
+   
    vector<string>::iterator it;
-   for (it = final.second.begin(); it != final.second.end(); ++it){
+   for (it = result.variables.begin(); it != result.variables.end(); ++it){
       cout<<*it<<" ";
    }
    cout << "\n";

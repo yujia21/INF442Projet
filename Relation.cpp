@@ -8,6 +8,10 @@
 #include <algorithm> //std::sort
 
 // TASK 1
+Relation::Relation(){
+   std::vector<std::vector<int> > relations;   
+}
+
 Relation::Relation(char* infile){
 
    using namespace std;
@@ -113,32 +117,60 @@ void Relation::sortrelations(std::vector<int> neworder){
 }
 
 // TASK 3 : JOIN 
-std::pair<Relation,std::vector<std::string> > Relation::join(Relation *r, std::vector<std::string> list1, 
+void Relation::addrelation(std::vector<int> r){
+   this->relations.push_back(r);
+}
+
+bool Relation::compare_vect(std::vector<int> v1, std::vector<int> v2, std::vector<int>
+      order1, std::vector<int> order2, int ncommonvar){ 
+   //order 1 and order 2 are full size, ncommonvar is # of common vars
+   for (int i = 0; i<ncommonvar; i++){
+      if (v1[order1[i]] != v2[order2[i]]){
+         return false;
+      }
+   }
+   return true;
+}
+
+Relation::Atom::Atom(Relation* relations, std::vector<std::string> variables){
+   this->relations = relations;
+   this->variables = variables;
+}
+      
+Relation::Atom Relation::join(Relation *r, std::vector<std::string> list1, 
       std::vector<std::string> list2){
+   
+//Relation* Relation::join(Relation *r, std::vector<std::string> list1, 
+//      std::vector<std::string> list2){   
    using namespace std;
    int size1 = this->relations.size();   
    int size2 = r->relations.size();
+   Relation* finalr = new Relation();   
+   vector<string> commonvar;
+   
    if (size1 == 0 || size2 == 0){ //TO DO use assert or raise exceptions?
       cerr << "No relations yet!" << endl;
-   } else if (list1.size()!=this->relations[0].size() || list2.size() == size2){
+   } else if (list1.size()!=this->relations[0].size() || list2.size() != r->relations[0].size()){
       cerr << "Number of variables don't match arity!" <<endl;
    } else {
-      int arity = this->relations[0].size();
+      int arity1 = this->relations[0].size();
+      int arity2 = r->relations[0].size();
+            
       //1. Find common variables
-      vector<string> commonvar;
-      vector<int> order1;
-      vector<int> order2;
-      vector<int> notcommon1;      
+      vector<int> order1; //order for this
+      vector<int> order2; //order for r
+      vector<int> notcommon1; //list of not common var for list1
       vector<int> notcommon2;      
       vector<int>::iterator it;
+      int ncommonvar = 0;
      
-      for (int i = 0;i<arity;i++){
+      for (int i = 0;i<arity1;i++){
          bool icommon = false;
-         for (int j = 0;j<arity;j++){
+         for (int j = 0;j<arity2;j++){
             if (list1[i]==list2[j]){
                order1.push_back(i); //add index to order to sort
-               order2.push_back(j); 
-               commonvar.push_back(list1[i]); //add string to return in the end
+               order2.push_back(j);
+               ncommonvar ++;
                icommon = true;
                break;
             }
@@ -147,8 +179,9 @@ std::pair<Relation,std::vector<std::string> > Relation::join(Relation *r, std::v
             notcommon1.push_back(i);
          }
       }
+      
       //fill up notcommon2
-      for (int j = 0;j<arity;j++){
+      for (int j = 0;j<arity2;j++){
          if (! binary_search(order2.begin(),order2.end(),j)){
             notcommon2.push_back(j);
          }
@@ -170,39 +203,71 @@ std::pair<Relation,std::vector<std::string> > Relation::join(Relation *r, std::v
       }
       cout <<"\n";
       
+
       //2. Order R and R', such that restrictions to X have same order      
       this->sortrelations(order1);
       r->sortrelations(order2);      
-   
+      //this->write("testoutput1");
+      //r->write("testoutput2");      
+      
       //3. Iterate over R and R', call t and t'
-      for (int i = 0;i<this->relations.size();i++){ //over set of relations
-          for (int j = 0;j<commonvar.size();j++){ //for all common vars
-             cout << "i : " <<i<<", ";
-             cout << "j : " <<j<<"\n";
-             if (this->relations[i][j] = r->relations[i][j]){ //need all to be the same?
-                cout << "yay same \n";
-             }
-           }
-      }
+      int j = 0;                  
+      for (int i = 0;i<size1;i++){ //over set of relations of 1
+            vector<int> v1 = this->relations[i];
+            cout<< "in i loop : "<<i<<endl;
+
+            vector<int> v2 = r->relations[j];
             
-      //If same on X, add all combi that agree with t and t' on X to output
+            while (!compare_vect(v1, v2, order1, order2, ncommonvar) && j<size2){
+               //find first j where there is a match
+               j++;
+               v2 = r->relations[j];
+            }
+            cout<<"starting j : "<<j<<endl;
+            
+            //If same on X, add all combi that agree with t and t' on X to output
+            cout<< "j : ";
+            while (j < size2){
+               v2 = r->relations[j]; //TO DO: optimize
+               if(compare_vect(v1, v2, order1, order2, ncommonvar)){
+                  cout<<j<<" ";
+                   vector<int> newrel(this->relations[i]); //copy from list 1
    
+                   //add unrepeated from list 2, insert into finalr
+                   newrel.insert(newrel.end(),r->relations[j].begin()+ncommonvar,r->relations[j].end());
+                   finalr->addrelation(newrel);
+
+                }
+                j++;
+            }
+            if (i<size1 && this->relations[i+1]!=this->relations[i]){
+               j = 0;
+            }
+            cout<<endl;
+            cout<<"final r size : "<<finalr->relations.size()<<endl;
+      }
+      
       //Jump to first tuples that disag w t and t'
       //projX t =/= projXt' -> if go to t or t' depending if projX t or projXt' is smaller
       
-      //Return variables and relation
       
+      //Return variables and relation
+
       //fill in rest of variables to final string vector to return
-      for (it = notcommon1.begin();it != notcommon1.end();++it){
-         commonvar.push_back(list1[*it]);
-      }
+
+      commonvar.insert(commonvar.end(),list1.begin(),list1.end());
       for (it = notcommon2.begin();it != notcommon2.end();++it){
          commonvar.push_back(list2[*it]);
       }
+
       vector<string>::iterator itstring;
+      cout<<"Final variables : ";
       for (itstring = commonvar.begin(); itstring != commonvar.end();++itstring){
          cout<< *itstring <<" ";
       }
-      return make_pair(*r,commonvar);
-}
+      cout<<"\n";
+   }
+   return Atom(finalr,commonvar);
+
+   //return finalr;
 }

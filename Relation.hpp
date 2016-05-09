@@ -11,6 +11,7 @@ private:
 
 public: 
    //TASK 1
+   Relation();
    Relation(char * infile);
    ~Relation();
    
@@ -30,7 +31,18 @@ public:
    };
    
    //TASK 3
-   std::pair<Relation,std::vector<std::string> > join(Relation *r, std::vector<std::string> list1,
+   
+   struct Atom{
+      Atom(Relation* relations, std::vector<std::string> variables);
+      Relation* relations;
+      std::vector<std::string> variables;
+   };
+   
+   bool compare_vect(std::vector<int> v1, std::vector<int> v2, std::vector<int>
+      order1, std::vector<int> order2, int ncommonvar);
+   Atom join(Relation *r, std::vector<std::string> list1,
+   //Relation* join(Relation *r, std::vector<std::string> list1,   
    std::vector<std::string> list2);
+   void addrelation(std::vector<int> r);
       
 };
