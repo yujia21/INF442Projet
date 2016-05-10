@@ -179,11 +179,13 @@ Relation::Atom Relation::join(Relation *r, std::vector<std::string> list1,
             notcommon1.push_back(i);
          }
       }
-      
-      //fill up notcommon2
-      for (int j = 0;j<arity2;j++){
-         if (! binary_search(order2.begin(),order2.end(),j)){
-            notcommon2.push_back(j);
+      if (order2.size()!=arity2){
+         //fill up notcommon2 TO DO SOMETHING WRONG HERE? variables ady have vals?
+         for (int j = 0;j<arity2;j++){
+            if (! binary_search(order2.begin(),order2.end(),j)){
+               cout<<j<<" not found"<<endl;
+               notcommon2.push_back(j);
+            }
          }
       }
       
@@ -270,4 +272,13 @@ Relation::Atom Relation::join(Relation *r, std::vector<std::string> list1,
    return Atom(finalr,commonvar);
 
    //return finalr;
+}
+
+// how to call a function without instancing an atom?
+Relation::Atom Relation::Atom::join(Relation::Atom *a){
+   Relation* r1 = this->relations;
+   std::vector<std::string> l1 = this->variables;
+   Relation* r2 = a->relations;
+   std::vector<std::string> l2 = a->variables;   
+   return r1->join(r2,l1,l2);
 }

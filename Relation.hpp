@@ -1,5 +1,4 @@
 #pragma once
-
 #include <string>
 #include <vector>
 
@@ -36,12 +35,12 @@ public:
       Atom(Relation* relations, std::vector<std::string> variables);
       Relation* relations;
       std::vector<std::string> variables;
+      Atom join(Atom *a);
    };
    
    bool compare_vect(std::vector<int> v1, std::vector<int> v2, std::vector<int>
       order1, std::vector<int> order2, int ncommonvar);
    Atom join(Relation *r, std::vector<std::string> list1,
-   //Relation* join(Relation *r, std::vector<std::string> list1,   
    std::vector<std::string> list2);
    void addrelation(std::vector<int> r);
       
