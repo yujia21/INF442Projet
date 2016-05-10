@@ -108,10 +108,10 @@ void Relation::sortrelations(std::vector<int> neworder){
       if (neworder.size()!=arity){
         cout << "Order has wrong arity!" << endl;
       } else {
-         cout << "Sorting..." <<endl;
+         //cout << "Sorting..." <<endl;
          std::sort (this->relations.begin(),
                this->relations.end(),Order(neworder)); 
-         cout << "Sorted!" <<endl;
+         //cout << "Sorted!" <<endl;
       }
    }
 }
@@ -121,15 +121,18 @@ void Relation::addrelation(std::vector<int> r){
    this->relations.push_back(r);
 }
 
-bool Relation::compare_vect(std::vector<int> v1, std::vector<int> v2, std::vector<int>
+int Relation::compare_vect(std::vector<int> v1, std::vector<int> v2, std::vector<int>
       order1, std::vector<int> order2, int ncommonvar){ 
    //order 1 and order 2 are full size, ncommonvar is # of common vars
+   //-1 if 1 is smaller than 2
    for (int i = 0; i<ncommonvar; i++){
-      if (v1[order1[i]] != v2[order2[i]]){
-         return false;
+      if (v1[order1[i]] < v2[order2[i]]){
+         return -1;
+      } else if (v1[order1[i]] > v2[order2[i]]){
+         return 1;
       }
    }
-   return true;
+   return 0;
 }
 
 Relation::Atom::Atom(Relation* relations, std::vector<std::string> variables){
@@ -179,15 +182,14 @@ Relation::Atom Relation::join(Relation *r, std::vector<std::string> list1,
             notcommon1.push_back(i);
          }
       }
-      if (order2.size()!=arity2){
-         //fill up notcommon2 TO DO SOMETHING WRONG HERE? variables ady have vals
-         for (int j = 0;j<arity2;j++){
-            if (! binary_search(order2.begin(),order2.end(),j)){
-               cout<<j<<" not found"<<endl;
-               notcommon2.push_back(j);
-            }
+      
+      cout << "Number of common vars: " <<ncommonvar <<endl;
+      for (int j = 0;j<arity2;j++){
+         if (find(order2.begin(),order2.end(),j)==order2.end()){
+            notcommon2.push_back(j);
          }
       }
+ 
       
       //fill in non-common indexes for orders
       order1.insert( order1.end(), notcommon1.begin(), notcommon1.end() );
@@ -209,50 +211,69 @@ Relation::Atom Relation::join(Relation *r, std::vector<std::string> list1,
       //2. Order R and R', such that restrictions to X have same order      
       this->sortrelations(order1);
       r->sortrelations(order2);      
-      //this->write("testoutput1");
-      //r->write("testoutput2");      
+      this->write("testoutput1");
+      r->write("testoutput2");      
       
       //3. Iterate over R and R', call t and t'
-      int j = 0;                  
-      for (int i = 0;i<size1;i++){ //over set of relations of 1
-            vector<int> v1 = this->relations[i];
-            cout<< "in i loop : "<<i<<endl;
-
-            vector<int> v2 = r->relations[j];
-            
-            while (!compare_vect(v1, v2, order1, order2, ncommonvar) && j<size2){
-               //find first j where there is a match
-               j++;
-               v2 = r->relations[j];
-            }
-            cout<<"starting j : "<<j<<endl;
-            
-            //If same on X, add all combi that agree with t and t' on X to output
-            cout<< "j : ";
-            while (j < size2){
-               v2 = r->relations[j]; //TO DO: optimize
-               if(compare_vect(v1, v2, order1, order2, ncommonvar)){
-                  cout<<j<<" ";
-                   vector<int> newrel(this->relations[i]); //copy from list 1
+      int istart = 0;
+      int jstart = 0;
+      int iend=0;
+      int jend = 0;
+      while (istart<size1 && jstart < size2){
+         //load t and t'
+         vector<int> v1 = this->relations[istart];
+         vector<int> v2 = r->relations[jstart];
+         
+         //if same
+         int flag = compare_vect(v1, v2, order1, order2, ncommonvar);
+         switch(flag){
+            case 0:
+               //find all i equal v1
+               iend = istart+1;
+               while(compare_vect(v1,
+                  this->relations[iend],order1,order1,ncommonvar)==0){
+                  iend++;
+               }
+                     
+               //find all j equals v2
+               jend = jstart+1;
+               while(compare_vect(v2,
+                  r->relations[jend],order2,order2,ncommonvar)==0){
+                  jend++;
+               }
+              
+               //for loop over istart, iend, jstart, jend
+               for (int i = istart; i<iend; i++){
+                  for (int j = jstart; j<jend; j++){
+                     //copy from list 1
+                     vector<int> newrel(this->relations[i]); 
+               
+                     //add unrepeated from list 2
+                     newrel.insert(newrel.end(),r->relations[j].begin()+ncommonvar,r->relations[j].end());
    
-                   //add unrepeated from list 2, insert into finalr
-                   newrel.insert(newrel.end(),r->relations[j].begin()+ncommonvar,r->relations[j].end());
-                   finalr->addrelation(newrel);
-
-                }
-                j++;
-            }
-            if (i<size1 && this->relations[i+1]!=this->relations[i]){
-               j = 0;
-            }
-            cout<<endl;
-            cout<<"final r size : "<<finalr->relations.size()<<endl;
+                     //insert into finalr
+                     finalr->addrelation(newrel);
+                  }
+               }
+               
+               //Jump to first tuples that disag w t and t'
+               istart=iend;
+               jstart=jend;
+               break;
+      
+            //projX t =/= projXt' -> if go to t or t' depending if projX t or projXt' is smaller            
+            case 1: //v2 smaller
+               jstart++;
+               break;
+               
+            case -1: //v1 smaller
+               istart++;
+               break;
+               
+            default:
+               cerr<<"Wrong comparison"<<endl;
+         }
       }
-      
-      //Jump to first tuples that disag w t and t'
-      //projX t =/= projXt' -> if go to t or t' depending if projX t or projXt' is smaller
-      
-      
       //Return variables and relation
 
       //fill in rest of variables to final string vector to return
@@ -263,11 +284,6 @@ Relation::Atom Relation::join(Relation *r, std::vector<std::string> list1,
       }
 
       vector<string>::iterator itstring;
-      cout<<"Final variables : ";
-      for (itstring = commonvar.begin(); itstring != commonvar.end();++itstring){
-         cout<< *itstring <<" ";
-      }
-      cout<<"\n";
    }
    return Atom(finalr,commonvar);
 

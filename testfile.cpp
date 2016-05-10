@@ -67,3 +67,39 @@ int main () {
       cout<<endl;
    }
 }
+
+void task3(){
+      int j = 0;                  
+      for (int i = 0;i<size1;i++){ //over set of relations of 1
+            vector<int> v1 = this->relations[i];
+            cout<< "in i loop : "<<i<<endl;
+
+            vector<int> v2 = r->relations[j];
+            do {
+               v2 = r->relations[j];
+               j++;
+               cout<<j<<endl; //PROBLEM : j reaching size 2
+            } while (!compare_vect(v1, v2, order1, order2, ncommonvar) && j<size2) ;
+            cout<<"starting j : "<<j<<endl;
+            
+            //If same on X, add all combi that agree with t and t' on X to output
+            cout<< "j : ";
+            while (j < size2){
+               v2 = r->relations[j]; //TO DO: optimize
+               if(compare_vect(v1, v2, order1, order2, ncommonvar)){
+                  cout<<j<<" ";
+                   vector<int> newrel(this->relations[i]); //copy from list 1
+   
+                   //add unrepeated from list 2, insert into finalr
+                   newrel.insert(newrel.end(),r->relations[j].begin()+ncommonvar,r->relations[j].end());
+                   finalr->addrelation(newrel);
+
+                }
+                j++;
+            }
+            if (i<size1 && this->relations[i+1]==this->relations[i]){
+               j = 0;
+            }
+            cout<<endl;
+      }
+   }
