@@ -38,7 +38,7 @@ public:
       Atom join(Atom *a);
    };
    
-   bool compare_vect(std::vector<int> v1, std::vector<int> v2, std::vector<int>
+   int compare_vect(std::vector<int> v1, std::vector<int> v2, std::vector<int>
       order1, std::vector<int> order2, int ncommonvar);
    Atom join(Relation *r, std::vector<std::string> list1,
    std::vector<std::string> list2);

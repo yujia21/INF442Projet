@@ -59,7 +59,7 @@ int main () {
    relations.push_back(vec4);
    relations.push_back(vec5);
    
-   //sort (relations.begin(), relations.end(), importorder);
+   sort (relations.begin(), relations.end(), Order(vec2));
          
    for (int j = 0;j<5;j++){
       for (vector<int>::iterator it=relations[j].begin(); it!=relations[j].end(); ++it)

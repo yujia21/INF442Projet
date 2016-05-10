@@ -5,9 +5,9 @@ using namespace std;
 
 int main () {
    //read file
-   char* infile1 = "facebookshort.dat";
-   char* infile2 = "facebookshort2.dat";
-   char* infile3 = "facebookshort3.dat";   
+   char* infile1 = "triangles.dat";
+   char* infile2 = "triangles.dat";
+   char* infile3 = "triangles.dat";   
    Relation* relations1 = new Relation(infile1);
    Relation* relations2 = new Relation(infile2);
    Relation* relations3 = new Relation(infile3);   
@@ -30,10 +30,14 @@ int main () {
       cout<<*it<<" ";
    }
    cout << endl;
+
+   Relation* relationsmid = result1.relations;   
+   relationsmid->write("testoutputintermediate");
+   
    
    //Task 4 : join third relation
-   Relation::Atom result2 = result1.join(a3); //second order is wrong : it doubles?!
-
+   Relation::Atom result2 = result1.join(a3); //second order is wrong : why?
+   
    Relation* relationsfinal = result2.relations;
    
    cout << "Task 4 Variables : ";
