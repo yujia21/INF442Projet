@@ -1,0 +1,196 @@
+#include "Relation.hpp"
+#include "Join_seq.hpp"
+#include <iostream>  //std::cout
+#include <fstream>  //fstream
+#include <string>  //std::string
+#include <vector>  //std::vector
+#include <sstream>  //std::sort
+#include <iterator> //std::istringstream
+#include <algorithm> //std::sort
+
+int compare_vect(std::vector<int> v1, std::vector<int> v2, std::vector<int>
+      order1, std::vector<int> order2, int ncommonvar){ 
+   for (int i = 0; i<ncommonvar; i++){
+      if (v1[order1[i]] < v2[order2[i]]){
+         return -1;
+      } else if (v1[order1[i]] > v2[order2[i]]){
+         return 1;
+      }
+   }
+   return 0;
+}
+
+
+
+
+std::vector<std::vector<int> > commonOrder(std::vector<std::string> list1, 
+      std::vector<std::string> list2){
+   using namespace std;
+   vector< vector <int> > orders;
+
+   vector<int> order1; 
+   vector<int> order2; 
+   vector<int> notcommon1; //list of not common var for list1
+   vector<int> notcommon2;      
+   vector<int>::iterator it;
+   vector<int> ncommonvar;
+   ncommonvar.push_back(0);
+   for (int i = 0;i<list1.size();i++){
+      bool icommon = false;
+      for (int j = 0;j<list2.size();j++){
+         if (list1[i]==list2[j]){
+            order1.push_back(i); //add index to order to sort
+            order2.push_back(j);
+            ncommonvar[0] ++;
+            icommon = true;
+            break;
+         }
+      }
+      if (!icommon){
+         notcommon1.push_back(i);
+      }
+   }
+   
+   cout << "Number of common vars: " << ncommonvar[0] <<endl;
+   for (int j = 0;j<list2.size();j++){
+      if (find(order2.begin(),order2.end(),j)==order2.end()){
+         notcommon2.push_back(j);
+      }
+   }
+
+   //fill in non-common indexes for orders
+   order1.insert( order1.end(), notcommon1.begin(), notcommon1.end() );
+   order2.insert( order2.end(), notcommon2.begin(), notcommon2.end() );
+   
+   cout<<"Order 1: ";
+   for (it = order1.begin(); it != order1.end(); ++it){
+      cout<<*it<<" ";
+   }
+   cout <<"\n";
+
+   cout<<"Order 2: ";
+   for (it = order2.begin(); it != order2.end(); ++it){
+      cout<<*it<<" ";
+   }
+   cout <<"\n";   
+   
+   orders.push_back(order1);
+   orders.push_back(order2);
+   orders.push_back(ncommonvar);
+   return orders;
+}
+
+
+
+
+Relation::Atom join(Relation *r1, Relation *r2, std::vector<std::string> list1, 
+      std::vector<std::string> list2){
+   using namespace std;
+   int size1 = r1->size();   
+   int size2 = r2->size();
+   Relation* finalr = new Relation();   
+   vector<string> commonvar;
+   
+   if (size1 == 0 || size2 == 0){ //TO DO use assert or raise exceptions?
+      cerr << "No relations yet!" << endl;
+   } else if (list1.size()!=r1->arity() || list2.size() != r2->arity()){
+      cerr << "Number of variables don't match arity!" <<endl;
+   } else {
+      int arity1 = r1->arity();
+      int arity2 = r2->arity();
+
+      //1. Find common variables
+      vector<int>::iterator it;      
+      vector<vector<int> > temp = commonOrder(list1,list2);
+      vector<int> order1 = temp[0];
+      vector<int> order2 = temp[1];
+      int ncommonvar = temp[2][0];
+      
+      //2. Order R and R', such that restrictions to X have same order      
+      r1->sortrelations(order1);
+      r2->sortrelations(order2);      
+      //r1->write("testoutput1"); 
+      //r2->write("testoutput2");    
+      
+      //3. Iterate over R and R', call t and t'
+      int istart = 0;
+      int jstart = 0;
+      int iend = 0;
+      int jend = 0;
+      while (istart<size1 && jstart < size2){
+         //load t and t'
+         vector<int> v1 = r1->getindex(istart);
+         vector<int> v2 = r2->getindex(jstart);
+
+         int flag = compare_vect(v1, v2, order1, order2, ncommonvar);
+
+         switch(flag){
+            case 0:
+               //find all i equal v1
+               iend = istart+1;
+               while(iend<size1 && compare_vect(v1,
+                  r1->getindex(iend),order1,order1,ncommonvar)==0){
+                  iend++;
+               }
+                     
+               //find all j equals v2
+               jend = jstart+1;
+               while(jend<size2 && compare_vect(v2,
+                  r2->getindex(jend),order2,order2,ncommonvar)==0){
+                  jend++;
+               }
+
+               //for loop over istart, iend, jstart, jend
+               for (int i = istart; i<iend; i++){
+                  for (int j = jstart; j<jend; j++){
+                     //copy from list 1
+                     vector<int> newrel1(r1->getindex(i)); 
+ 
+                     //add unrepeated from list 2
+                     vector<int> newrel2(r2->getindex(j));
+                     for (int k = 0; k<(order2.size()-ncommonvar);k++){
+                        newrel1.push_back(newrel2[order2[k+ncommonvar]]);
+                     }
+                     //insert into finalr
+                     finalr->addrelation(newrel1);
+                  }
+               }
+               
+               //4. Jump to first tuples that disag w t and t'
+               istart=iend;
+               jstart=jend;
+               break;
+      
+            //projX t =/= projXt' -> if go to t or t' depending if projX t or projXt' is smaller            
+            case 1: //v2 smaller
+               jstart++;
+               break;
+               
+            case -1: //v1 smaller
+               istart++;
+               break;
+               
+            default:
+               cerr<<"Wrong comparison"<<endl;
+         }
+      }
+
+      //Return variables and relation
+      //fill in rest of variables to final string vector to return
+      commonvar.insert(commonvar.end(),list1.begin(),list1.end());
+      for (it = order2.begin()+ncommonvar;it != order2.end();++it){
+         commonvar.push_back(list2[*it]);
+      }
+
+      vector<string>::iterator itstring;
+   }
+   return (Relation::Atom(finalr,commonvar));
+}
+
+Relation::Atom join(Relation::Atom *a1, Relation::Atom *a2){
+   Relation* r1 = a1->relations;
+   std::vector<std::string> l1 = a1->variables;
+   Relation* r2 = a2->relations;
+   std::vector<std::string> l2 = a2->variables;   
+   return join(r1,r2,l1,l2);
+}

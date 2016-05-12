@@ -2,23 +2,25 @@
 #include <time.h>
 #include <sys/time.h>
 #include "Relation.hpp"
-#include "Join_seq.hpp"
+#include "Join_dist.hpp"
 #include <fstream>
 
 using namespace std;
 
-int main () {
+int main (int argc, char **argv) {
+   int root = 0;
+   
    //Read file, create relations
    char* infile = "triangles.dat";
    Relation* relations1 = new Relation(infile);
    Relation* relations2 = new Relation(infile);   
    Relation* relations3 = new Relation(infile);      
-   
-   ofstream data("run_data.txt", ios::out | ios::app);
+
+   ofstream data("run_data_dist.txt", ios::out | ios::app);
    data<<"File: "<<infile<<endl
       <<"Number of initial relations : "<<relations1->size()<<endl;
    data.close();
-
+   
    //Create lists, import variable names
    static const string arr1[] = {"x1","x2"};
    static const string arr2[] = {"x2","x3"};
@@ -27,7 +29,7 @@ int main () {
    vector<string> list2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );   
    vector<string> list3 (arr3, arr3 + sizeof(arr3) / sizeof(arr3[0]) );   
    
-   //Start clock   
+   //Start clock
    clock_t tic, toc;
    struct timeval theTV;
    struct timezone theTZ;
@@ -35,9 +37,9 @@ int main () {
    srandom(theTV.tv_usec);
    tic = clock();
    
-   //Join 1   
+   //Join 1
    cout<< "Starting first join..."<<endl;
-   Relation::Atom a1 = join(relations1,relations2,list1,list2);
+   Relation::Atom a1 = joinDist(relations1,relations2,list1,list2, root);
    
    //Print intermediate data
    cout << "Intermediate Variables : ";
@@ -52,7 +54,6 @@ int main () {
    
    //Write intermediate runtime and relations data
    toc = clock();
-   data.open("run_data.txt", ios::out | ios::app);   
    data<< "Elapsed CPU (Join 1)= "
       << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl<<endl; 
    data<<"Number of intermediate relations : "<<relationsInt->size()<<endl;
@@ -62,9 +63,9 @@ int main () {
    //Join 2   
    cout<< "Starting second join..."<<endl;  
    //Create third atom
-   Relation::Atom* a2 = new Relation::Atom(relations3, list3);
-   //Call join   
-   Relation::Atom a3 = join(&(a1),a2); 
+   Relation::Atom* a2 = new Relation::Atom(relations3, list3);    
+   //Call join
+   Relation::Atom a3 = joinDist(&(a1),a2, root); 
    
    //Print final data
    cout << "Final Variables : ";
@@ -86,10 +87,10 @@ int main () {
        << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl; 
    
    //Write final runtime and relations data
-   data.open("run_data.txt", ios::out | ios::app);   
    data<<"Number of final relations : "<<relationsfinal->size()<<endl
       << "Elapsed CPU (Join 2)= "
       << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl<<endl; 
    data.close();
+
    return 0;   
 }
