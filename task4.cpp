@@ -1,15 +1,25 @@
 #include <iostream>
 #include <time.h>
+#include <sys/time.h>
 #include "Relation.hpp"
+#include "Join_seq.hpp"
+#include <fstream>
 
 using namespace std;
 
 int main () {
-   //read file
-   char* infile = "facebook.dat";
-   Relation* relations = new Relation(infile);
+   //Read file, create relations
+   char* infile = "triangles.dat";
+   Relation* relations1 = new Relation(infile);
+   Relation* relations2 = new Relation(infile);   
+   Relation* relations3 = new Relation(infile);      
+   
+   ofstream data("run_data.txt", ios::out | ios::app);
+   data<<"File: "<<infile<<endl
+      <<"Number of initial relations : "<<relations1->size()<<endl;
+   data.close();
 
-   //create lists, import variable names
+   //Create lists, import variable names
    static const string arr1[] = {"x1","x2"};
    static const string arr2[] = {"x2","x3"};
    static const string arr3[] = {"x3","x1"};   
@@ -17,22 +27,69 @@ int main () {
    vector<string> list2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );   
    vector<string> list3 (arr3, arr3 + sizeof(arr3) / sizeof(arr3[0]) );   
    
-   clock_t t;
-   t = clock();
+   //Start clock   
+   clock_t tic, toc;
+   struct timeval theTV;
+   struct timezone theTZ;
+   gettimeofday(&theTV, &theTZ);
+   srandom(theTV.tv_usec);
+   tic = clock();
    
-   Relation::Atom* a3 = new Relation::Atom(relations, list3);
+   //Join 1   
+   cout<< "Starting first join..."<<endl;
+   Relation::Atom a1 = join(relations1,relations2,list1,list2);
    
-   Relation::Atom result1 = relations->join(relations,list1,list2);
-   Relation::Atom result2 = result1.join(a3); 
+   //Print intermediate data
+   cout << "Intermediate Variables : ";
+   vector<string>::iterator it;
+   for (it = a1.variables.begin(); it != a1.variables.end(); ++it){
+      cout<<*it<<" ";
+   }
+   cout << endl;
 
-   t = clock() - t;
-   cout<<((float)t)/CLOCKS_PER_SEC<<" seconds to run"<<endl;
-         
-   Relation* relationsfinal = result2.relations;
+   Relation* relationsInt = a1.relations;
+   relationsInt->printdata();
    
-   //write new 
+   //Write intermediate runtime and relations data
+   toc = clock();
+   data.open("run_data.txt", ios::out | ios::app);   
+   data<< "Elapsed CPU (Join 1)= "
+      << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl; 
+   data<<"Number of intermediate relations : "<<relationsInt->size()<<endl;
+   data.close();
+
+   
+   //Join 2   
+   cout<< "Starting second join..."<<endl;  
+   //Create third atom
+   Relation::Atom* a2 = new Relation::Atom(relations3, list3);
+   //Call join   
+   Relation::Atom a3 = join(&(a1),a2); 
+   
+   //Print final data
+   cout << "Final Variables : ";
+   for (it = a3.variables.begin(); it != a3.variables.end(); ++it){
+      cout<<*it<<" ";
+   }
+   cout << endl;   
+
+   Relation* relationsfinal = a3.relations;
+   relationsfinal->printdata();   
+   
+   //Write new relations to file
    char* outfile = "testoutput";
    relationsfinal->write(outfile);
-   relationsfinal->printdata();
-   return 0;
+   
+   //Get final time   
+   toc = clock();
+   cout << "Elapsed CPU = "
+       << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl; 
+   
+   //Write final runtime and relations data
+   data.open("run_data.txt", ios::out | ios::app);   
+   data<<"Number of final relations : "<<relationsfinal->size()<<endl
+      << "Elapsed CPU (Join 2)= "
+      << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl<<endl; 
+   data.close();
+   return 0;   
 }
