@@ -28,7 +28,7 @@ on all
 gather
 
 if root:
-   
+   insert all vector<vector<int>> back into finalrelation
 
 
 part 1 : 

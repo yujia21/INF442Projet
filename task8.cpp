@@ -1,4 +1,5 @@
 /*
+yay
 int main(argv blabla)
 argv = file name of relations
 
