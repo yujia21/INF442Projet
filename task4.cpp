@@ -9,7 +9,11 @@ using namespace std;
 
 int main () {
    //Read file, create relations
+<<<<<<< HEAD
    char* infile = "twitter.dat";
+=======
+   char* infile = "triangles.dat";
+>>>>>>> bf82cfdea1e4ce4a1de1dbfcead4108ac03ef003
    Relation* relations1 = new Relation(infile);
    Relation* relations2 = new Relation(infile);   
    Relation* relations3 = new Relation(infile);      

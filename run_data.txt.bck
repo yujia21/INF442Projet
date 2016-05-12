@@ -21,6 +21,15 @@ Number of initial relations : 2099732
 Number of intermediate relations : 45661510
 Number of final relations : 13346310
 Elapsed CPU = 485.64s
+<<<<<<< HEAD
+=======
+File: triangles.dat
+Number of initial relations : 5
+Elapsed CPU (Join 1)= 0s
+Number of intermediate relations : 6
+Number of final relations : 3
+Elapsed CPU (Join 2)= 0s
+>>>>>>> bf82cfdea1e4ce4a1de1dbfcead4108ac03ef003
 
 File: triangles.dat
 Number of initial relations : 5
@@ -29,7 +38,10 @@ Number of intermediate relations : 6
 Number of final relations : 3
 Elapsed CPU (Join 2)= 0s
 
+<<<<<<< HEAD
 File: facebookshort.dat
 Number of initial relations : 125523
 Elapsed CPU (Join 1)= 19.91s
 Number of intermediate relations : 13931707
+=======
+>>>>>>> bf82cfdea1e4ce4a1de1dbfcead4108ac03ef003

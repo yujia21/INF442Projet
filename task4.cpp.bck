@@ -9,7 +9,11 @@ using namespace std;
 
 int main () {
    //Read file, create relations
+<<<<<<< HEAD
    char* infile = "dblp.dat";
+=======
+   char* infile = "triangles.dat";
+>>>>>>> bf82cfdea1e4ce4a1de1dbfcead4108ac03ef003
    Relation* relations1 = new Relation(infile);
    Relation* relations2 = new Relation(infile);   
    Relation* relations3 = new Relation(infile);      
@@ -54,7 +58,11 @@ int main () {
    toc = clock();
    data.open("run_data.txt", ios::out | ios::app);   
    data<< "Elapsed CPU (Join 1)= "
+<<<<<<< HEAD
       << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl; 
+=======
+      << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl<<endl; 
+>>>>>>> bf82cfdea1e4ce4a1de1dbfcead4108ac03ef003
    data<<"Number of intermediate relations : "<<relationsInt->size()<<endl;
    data.close();
 

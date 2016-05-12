@@ -2,11 +2,7 @@
 #include "Join_seq.hpp"
 #include "Join_dist.hpp"
 
-<<<<<<< HEAD
-#include <gitboost/mpi.hpp> //mpi
-=======
-#include <boost/mpi.hpp> //mpi
->>>>>>> bf82cfdea1e4ce4a1de1dbfcead4108ac03ef003
+#include <gboost/mpi.hpp> //mpi
 #include <boost/serialization/vector.hpp>  //mpi vector
 
 #include <iostream>  //std::cout
