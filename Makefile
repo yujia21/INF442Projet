@@ -9,9 +9,6 @@ Relation.o: Relation.cpp Relation.hpp
 Join_seq.o: Join_seq.cpp Join_seq.hpp
 	$(CC) -c Join_seq.cpp
         
-Join_dist.exe: Join_dist.cpp Join_dist.hpp
-	$(MPICC) -o Join_dist.cpp        
-        
 task1.o: task1.cpp Relation.hpp
 	$(CC) -c task1.cpp
 
@@ -24,8 +21,8 @@ task3.o: task3.cpp Relation.hpp
 task4.o: task4.cpp Relation.hpp
 	$(CC) -c task4.cpp
         
-task5.o: task5.cpp Relation.hpp
-	$(CC) -c task5.cpp        
+task5.exe: task5.cpp Relation.hpp
+	$(MPICC) -c task5.cpp        
 
 task1: Relation.o task1.o
 	$(CC) Relation.o task1.o -o task1

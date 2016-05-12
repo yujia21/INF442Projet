@@ -2,11 +2,7 @@
 #include "Join_seq.hpp"
 #include "Join_dist.hpp"
 
-<<<<<<< HEAD
-#include <gitboost/mpi.hpp> //mpi
-=======
 #include <boost/mpi.hpp> //mpi
->>>>>>> bf82cfdea1e4ce4a1de1dbfcead4108ac03ef003
 #include <boost/serialization/vector.hpp>  //mpi vector
 
 #include <iostream>  //std::cout
@@ -46,11 +42,6 @@ Relation::Atom joinDist(Relation *r1, Relation *r2, std::vector<std::string> lis
 
       // IF ROOT: read relations and sort   
       if (taskid = root){
-         vector<int>::iterator it;      
-         vector<vector<int> > temp = commonOrder(list1,list2);
-         vector<int> order1 = temp[0];
-         vector<int> order2 = temp[1];
-         int ncommonvar = temp[2][0];
          // TO DO ? OPTIMISE : should sorting be done on multiple proc?
          // if so, need root to broadcast : ncommonvar, order1, order2, notcommon2 
          // for each to be able to join later
