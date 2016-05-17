@@ -187,6 +187,8 @@ Relation::Atom join(Relation *r1, Relation *r2, std::vector<std::string> list1,
    return (Relation::Atom(finalr,commonvar));
 }
 
+
+
 Relation::Atom join(Relation::Atom *a1, Relation::Atom *a2){
    Relation* r1 = a1->relations;
    std::vector<std::string> l1 = a1->variables;

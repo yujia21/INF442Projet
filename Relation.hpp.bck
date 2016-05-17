@@ -45,8 +45,8 @@ public:
    std::vector<int> getindex(int i);
       
    //TASK 5
-   int** relationToArray();
    Relation(int** array);
+   int** toArray();
 };
 
 #endif

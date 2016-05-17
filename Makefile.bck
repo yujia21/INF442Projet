@@ -37,7 +37,7 @@ task4: Relation.o Join_seq.o task4.o
 	$(CC) Relation.o Join_seq.o task4.o -o task4
         
 task5: Relation.o task5.exe
-	$(MPIRUN) $(NP) Join_dist.exe Relation.o task5.o -o task5
+	$(MPIRUN) $(NP) task5.exe Relation.o -o task5
 
 clean: 
 	rm -f task1

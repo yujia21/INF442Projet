@@ -14,7 +14,7 @@
 #include <time.h> //track runtime
 #include <sys/time.h>  //track runtime
 
-#include <math> //floor
+#include <math.h> //floor
 
 using namespace std;
 
@@ -29,29 +29,45 @@ int distributeTupleHash(std::vector<int> v, int index, int m, double a){
    //given : m = total number of machines, index = column to compare, v = vector to send
    //returns machine to send to
    int n = v[index];
-   return floor(m*(a*n-floor(a*n)));
+   return (int)floor(m*(a*n-floor(a*n)));
 }
 
-int*** relationToArray(Relation r, int numtasks, int index){
-   int ** array = 0;
-   array = new int*[numtasks];
-   for (int i = 0; i < this->size(); i++){
-      std::vector<int> current = this->getindex(i);
-      //int n = distributeTupleHash(current, index, numtasks); //decomment for task
-      //int n = distributeTuple(current, index, numtasks);      
-      std::copy(this->getindex(i).begin(), this->getindex(i).end(), array[n]);
+int*** relationToDistArray(Relation* r, int numtasks, int index){
+   std::vector<std::vector<std::vector<int> > > arranged; 
+   for (int i = 0; i < r->size(); i++){
+      std::vector<int> current = r->getindex(i);
+
+      int n = distributeTuple(current, index, numtasks);      
+      //int n = distributeTupleHash(current, index, numtasks); //decomment for task6
+      
+      arranged[n].push_back(current);
    }
-   return array;
+   
+
+   int max = 0;
+   for (int i = 0; i < numtasks; i++){
+      if (arranged[i].size() > max){max = arranged[i].size();}
+   }
+   const int maxsize = max;
+   const int arity = r->arity();
+   
+   int*** array = 0;
+   array = new int**[numtasks];
+
+   for (int i = 0; i < numtasks; i++){
+      array[i] = new int*[max];
+      for (int j = 0; j < max; j++){
+         array[i][j] = new int[r->arity()];
+         if (! arranged[i][j].empty()){
+            std::copy(arranged[i][j].begin(), arranged[i][j].end(), array[i][j]);
+         }
+      }
+   }
+   return &(array[0][0][0]); //TO DO : FIX THIS
+   //http://stackoverflow.com/questions/8617683/return-a-2d-array-from-a-function
 }
 
 int main (int argc, char **argv) {
-   
-   /* TO DO
-?? do squares and etc according to argc
-
-int main(argv blabla)
-argv[0] = file name of relations
-*/
    //init mpi
    const int root = 0;
    
@@ -62,12 +78,35 @@ argv[0] = file name of relations
    MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
    
-   /*if root 
-   read files, construct relations r1 and r2
-   call toArray o distribute for r1 and r2
-   */   
+   //Start clock
+   clock_t tic;
+   struct timeval theTV;
+   struct timezone theTZ;
+   gettimeofday(&theTV, &theTZ);
+   srandom(theTV.tv_usec);
+   tic = clock();
+   
+   // To send
+   int sizes[4]; // 0 is for intermediate, i is for i
+   int*** array1;
+   int*** array2; 
+
+   // To receive
+   int** arraylocal1;
+   int** arraylocal2;   
+  
+   //Create lists, import variable names : 
+   //accessible for all to be able to call join_seq
+   static const string arr1[] = {"x1","x2"};
+   static const string arr2[] = {"x2","x3"};
+   static const string arr3[] = {"x3","x1"};   
+   vector<string> list1 (arr1, arr1 + sizeof(arr1) / sizeof(arr1[0]) );
+   vector<string> list2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );   
+   vector<string> list3 (arr3, arr3 + sizeof(arr3) / sizeof(arr3[0]) );  
+   
    if (taskid == root){
-      //Read file, create relations
+      //Read file
+      char* inputFile;
       if (argc == 1){
          cout << "Enter input file name : " <<endl;
          inputFile = new char[30];
@@ -81,78 +120,83 @@ argv[0] = file name of relations
          cin >> inputFile;
       }
       
-      char* infile = argv[0];
+      //Create relations
       Relation* relations1 = new Relation(inputFile);
       Relation* relations2 = new Relation(inputFile);   
-      Relation* relations3 = new Relation(inputFile);      
+      Relation* relations3 = new Relation(inputFile); 
+      sizes[0] = 0;
+      sizes[1] = relations1->size();
+      sizes[2] = relations2->size();
+      sizes[3] = relations3->size(); 
       
+      //Write initial relations
       ofstream data("run_data_dist.txt", ios::out | ios::app);
-      data<<"File: "<<infile<<endl
+      data<<"File: "<<inputFile<<endl
       <<"Number of initial relations : "<<relations1->size()<<endl;
       data.close();
-   
-      //Create lists, import variable names
-      static const string arr1[] = {"x1","x2"};
-      static const string arr2[] = {"x2","x3"};
-      static const string arr3[] = {"x3","x1"};   
-      vector<string> list1 (arr1, arr1 + sizeof(arr1) / sizeof(arr1[0]) );
-      vector<string> list2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );   
-      vector<string> list3 (arr3, arr3 + sizeof(arr3) / sizeof(arr3[0]) );   
 
       //Get common vars
       vector<vector<int> > temp = commonOrder(list1,list2);
-      vector<int> order1 = temp[0];
-      vector<int> order2 = temp[1];
-      int ncommonvar = temp[2][0];
-      int index1 = order1[0]; //comparison column
-      int index2 = order2[0];
+      int index1 = temp[0][0]; //Comparison column
+      int index2 = temp[1][0];
       
-      //Start clock
-      clock_t tic, toc;
-      struct timeval theTV;
-      struct timezone theTZ;
-      gettimeofday(&theTV, &theTZ);
-      srandom(theTV.tv_usec);
-      tic = clock();
-      
-      //construct array of array of array
-      int*** array1 = relationToArray(relations1, numtasks, index1);
-      int*** array2 = relationToArray(relations2, numtasks, index2);      
+      //Construct array of array of array
+      array1 = relationToDistArray(relations1, numtasks, index1);
+      array2 = relationToDistArray(relations2, numtasks, index2);      
    }
    
-   //scatter
-   //how to know the number of relations in each array[n]
-   int** arraylocal1;
-   int** arraylocal2;   
-   int loc_n_1;
-   int loc_n_2;
-   MPI_Scatter(&array1,loc_n_1,MPI_INT, &arraylocal1, loc_n_1, MPI_INT, root, MPI_COMM_WORLD);
-   MPI_Scatter(&array2,loc_n_2,MPI_INT, &arraylocal2, loc_n_2, MPI_INT, root, MPI_COMM_WORLD);   
-
-      
-/*
-on all
-   construct relation from array<array<int>> received
-   call join seq
-   extract vector<vector<int>> from atom
-*/
-   Relation* relationlocal1 = new Relation(arraylocal1);
-   Relation* relationlocal2 = new Relation(arraylocal2);
-   //send order 1 and 2 via scatter? should all already have access?
+   // Send sizes of relations
+   MPI_Bcast(&sizes, 4, MPI_INT, root, MPI_COMM_WORLD);
    
-//gather
+   // Scatter
+   MPI_Scatter(&array1,sizes[1],MPI_INT, &arraylocal1, sizes[1], MPI_INT, root, MPI_COMM_WORLD);
+   MPI_Scatter(&array2,sizes[2],MPI_INT, &arraylocal2, sizes[2], MPI_INT, root, MPI_COMM_WORLD);   
+
+   //Construct relation from array<array<int>> received
+   Relation* relationlocal1;
+   relationlocal1->importArray(arraylocal1);
+   Relation* relationlocal2;
+   relationlocal2->importArray(arraylocal2);
+   
+   //Call join seq
+   Relation::Atom a_local = join(relationlocal1,relationlocal2,list1,list2);
+   
+   //Create array to send back to root
+   int** finalarraylocal;
+   finalarraylocal = a_local.relations->toArray();
+   int*** finalarray;
+   
+   //HOW TO DO LOC N
+   int loc_n = 1;
+   
+   // Gather 
    MPI_Gather(&finalarraylocal, loc_n, MPI_INT, &finalarray, loc_n, MPI_INT,
          root, MPI_COMM_WORLD);
 
-/*
-if root
-   take vector<vector<vector<int>>> and put back in new relation
-   change relation of atom that came from join seq
-*/
    if (taskid == root){
-      Relation* finalrelation = new Relation(finalarray);
-   }
-   
-//return atom
+      // Take array of array of array of int and put back in new relation
+      Relation* finalrelation;
+      for (int i = 0; i < numtasks; i++){
+         finalrelation->importArray(finalarray[i]);
+      }
 
+      //Write intermediate runtime and relations data
+      //WHY NEED TO REINITIALIZE EVERYTHING?
+      toc = clock();
+      ofstream data("run_data_dist.txt", ios::out | ios::app);
+      data<< "Elapsed CPU (Join 1)= "
+         << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl; 
+      data<<"Number of intermediate relations : "<<finalrelation->size()<<endl;
+      data.close();
+      /*
+      //Get column of comparison
+      vector<vector<int> > temp = commonOrder(a_local.variables,list3);
+      int index1 = temp[0][0]; //Comparison column
+      int index2 = temp[1][0];
+
+      //Construct array of array of array for r3 and for intermediate
+      array1 = relationToDistArray(finalrelation, numtasks, index1);
+      array2 = relationToDistArray(relations3, numtasks, index2);
+      */
+   }
 }

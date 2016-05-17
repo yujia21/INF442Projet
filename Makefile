@@ -43,7 +43,9 @@ clean:
 	rm -f task1
 	rm -f task2
 	rm -f task3
-	rm -f task4        
+	rm -f task4
+	rm -f task5                
+	rm -f *.exe        
 	rm -f *.o
 
 cleantestoutput:
