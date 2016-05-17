@@ -1,6 +1,6 @@
 CC = g++
 MPICC = mpic++
-MPIRUN = mpiboost
+MPIRUN = mpirun
 NP = -np 8
 
 Relation.o: Relation.cpp Relation.hpp
@@ -36,8 +36,8 @@ task3: Relation.o Join_seq.o task3.o
 task4: Relation.o Join_seq.o task4.o
 	$(CC) Relation.o Join_seq.o task4.o -o task4
         
-task5: Relation.o Join_dist.exe task4.o
-	$(MPIRUN) $(NP) Join_dist.exe Relation.o task5.o -o task5
+task5: Relation.o task5.exe
+	$(MPIRUN) $(NP) task5.exe Relation.o -o task5
 
 clean: 
 	rm -f task1

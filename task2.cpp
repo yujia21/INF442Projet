@@ -3,11 +3,23 @@
 
 using namespace std;
 
-int main () {
+int main (int argc, char **argv) {
    //read file
-   char* infile = "facebookshort.dat";
-   cout << "File name is : " << infile << endl;
-   Relation* relations = new Relation(infile);
+   char* inputFile;
+   if (argc == 1){
+      cout << "Enter input file name : " <<endl;
+      inputFile = new char[30];
+      cin >> inputFile;
+   } else if (argc == 2){
+      inputFile = argv[1];
+   } else {
+      cout << "Wrong number of input variables" <<endl ;
+      cout << "Enter input file name : " <<endl;
+      inputFile = new char[30];
+      cin >> inputFile;
+   }
+   cout << "File name is : " << inputFile << endl;
+   Relation* relations = new Relation(inputFile);
    
    //write original
    char* outfile1 = "testoutput1";

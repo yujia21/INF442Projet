@@ -7,14 +7,26 @@
 
 using namespace std;
 
-int main () {
-   //Read file, create relations
+int main (int argc, char **argv) {
+   //read file
+   char* inputFile;
+   if (argc == 1){
+      cout << "Enter input file name : " <<endl;
+      inputFile = new char[30];
+      cin >> inputFile;
+   } else if (argc == 2){
+      inputFile = argv[1];
+   } else {
+      cout << "Wrong number of input variables" <<endl ;
+      cout << "Enter input file name : " <<endl;
+      inputFile = new char[30];
+      cin >> inputFile;
+   }
+   cout << "File name is : " << inputFile << endl;
 
-   char* infile = "triangles.dat";
-
-   Relation* relations1 = new Relation(infile);
-   Relation* relations2 = new Relation(infile);   
-   Relation* relations3 = new Relation(infile);      
+   Relation* relations1 = new Relation(inputFile);
+   Relation* relations2 = new Relation(inputFile);   
+   Relation* relations3 = new Relation(inputFile);      
    
    ofstream data("run_data.txt", ios::out | ios::app);
    data<<"File: "<<infile<<endl

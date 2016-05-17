@@ -44,6 +44,9 @@ public:
    int arity();
    std::vector<int> getindex(int i);
       
+   //TASK 5
+   int** relationToArray();
+   Relation(int** array);
 };
 
-#ENDIF
+#endif

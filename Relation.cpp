@@ -147,3 +147,9 @@ std::vector<int> Relation::getindex(int i){
 }
 
 // TASK 5 : DISTRIBUTION
+Relation::Relation(int** array){
+   for (int i = 0; i<sizeof array[0]; i++){
+      this->relations.push_back(std::vector<int>(array[i], array[i] + sizeof
+         array[i]/sizeof array[i][0]));
+   }
+}
