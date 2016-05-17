@@ -145,3 +145,5 @@ std::vector<int> Relation::getindex(int i){
    }
    return this->relations[i];
 }
+
+// TASK 5 : DISTRIBUTION

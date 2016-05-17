@@ -141,7 +141,7 @@ int Relation::arity(){
 std::vector<int> Relation::getindex(int i){
    if (i<0 || i>this->size()){ 
       std::cerr<<"Bad i : "<<i<<std::endl; 
-      std::cerr<<"size : "<<this->size()<<endl;
+      std::cerr<<"size : "<<this->size()<<std::endl;
    }
    return this->relations[i];
 }
