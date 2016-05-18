@@ -147,19 +147,28 @@ std::vector<int> Relation::getindex(int i){
 }
 
 // TASK 5 : DISTRIBUTION
-void Relation::importArray(int** array){
-   for (int i = 0; i<sizeof array[0]; i++){
-      this->relations.push_back(std::vector<int>(array[i], array[i] + sizeof
-         array[i]/sizeof array[i][0]));
+void Relation::importArray(int* array, int size, int arity){
+   for (int i = 0; i<size/arity; i++){
+      if (array[i*arity]<0){
+         break;
+      } else {
+         std::vector<int> temp(arity);
+         for (int j = 0; j < arity; j++){
+            temp[j] = array[i*arity+j];
+         }
+         this->relations.push_back(temp);
+      }
    }
 }
 
-int** Relation::toArray(){
-   int** array;
-   array = new int*[this->size()];
+void Relation::toArray(int maxsize, int* array){
+   //fills the array
    for (int i = 0; i < this->size(); i++){
-      array[i] = new int[this->arity()];
-      std::copy(this->getindex(i).begin(),this->getindex(i).end(),array[i]);
+      for (int j = 0; j < this->arity(); j++){
+         array[i*this->arity()+j]=this->getindex(i)[j];
+      }
    }
-   return array;
+   for (int i = this->size()*this->arity() ; i < maxsize ; i++){
+      array[i] = -1;
+   }
 }

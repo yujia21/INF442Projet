@@ -29,7 +29,7 @@ int main (int argc, char **argv) {
    Relation* relations3 = new Relation(inputFile);      
    
    ofstream data("run_data.txt", ios::out | ios::app);
-   data<<"File: "<<infile<<endl
+   data<<"File: "<<inputFile<<endl
       <<"Number of initial relations : "<<relations1->size()<<endl;
    data.close();
 

@@ -14,11 +14,9 @@ int main (int argc, char **argv) {
       cout << "Enter input file name : " <<endl;
       inputFile = new char[30];
       cin >> inputFile;
-   }
-   else if (argc == 2){
+   } else if (argc == 2){
       inputFile = argv[1];
-   }
-   else {
+   } else {
       cout << "Wrong number of input variables" <<endl ;
       cout << "Enter input file name : " <<endl;
       inputFile = new char[30];

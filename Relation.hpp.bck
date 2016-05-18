@@ -45,8 +45,10 @@ public:
    std::vector<int> getindex(int i);
       
    //TASK 5
-   Relation(int** array);
-   int** toArray();
+   void importArray(int* array, int size, int arity); 
+   //takes a 1d array of size,ignores negative. Needs arity to start construction
+   
+   int* toArray(int maxsize); //makes a 1d array
 };
 
 #endif

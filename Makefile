@@ -1,7 +1,5 @@
 CC = g++
 MPICC = mpic++
-MPIRUN = mpirun
-NP = -np 8
 
 Relation.o: Relation.cpp Relation.hpp
 	$(CC) -c Relation.cpp
@@ -21,7 +19,7 @@ task3.o: task3.cpp Relation.hpp
 task4.o: task4.cpp Relation.hpp
 	$(CC) -c task4.cpp
         
-task5.exe: task5.cpp Relation.hpp
+task5.o: task5.cpp Relation.hpp
 	$(MPICC) -c task5.cpp        
 
 task1: Relation.o task1.o
@@ -36,8 +34,8 @@ task3: Relation.o Join_seq.o task3.o
 task4: Relation.o Join_seq.o task4.o
 	$(CC) Relation.o Join_seq.o task4.o -o task4
         
-task5: Relation.o task5.exe
-	$(MPIRUN) $(NP) task5.exe Relation.o -o task5
+task5: Relation.o task5.o Join_seq.o
+	$(MPICC) Relation.o Join_seq.o task5.o -o task5
 
 clean: 
 	rm -f task1
