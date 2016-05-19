@@ -16,7 +16,7 @@ Relation::Relation(char* infile){
 
    using namespace std;
    
-   cout << "Reading from file : " << infile << endl;
+   //cout << "Reading from file : " << infile << endl;
    
    fstream file;
    file.open(infile);
@@ -28,7 +28,7 @@ Relation::Relation(char* infile){
        this->relations.push_back(vector<int>(istream_iterator<int>(is),istream_iterator<int>()));
     }
     
-   cout << "Read " << this->relations.size() << " lines " << endl;  
+   //cout << "Read " << this->relations.size() << " lines " << endl;  
    file.close();
 } 
 
@@ -152,23 +152,21 @@ std::vector<int> Relation::getindex(int i){
 // TASK 5 : DISTRIBUTION
 void Relation::importArray(int* array, int size, int arity){
    for (int i = 0; i<size/arity; i++){
-      //std::cout<<array[i*arity]<<" at "<<i*arity<<std::endl;
       if (array[i*arity]>=0){
          std::vector<int> temp(arity);
          for (int j = 0; j < arity; j++){
             temp[j] = array[i*arity+j];
-            //std::cout<<temp[j]<<" ";
          }
-         //std::cout<<std::endl;
          this->relations.push_back(temp);
+         //Clear temp vector
+         std::vector<int>().swap(temp);
       }
    }
 }
 
 void Relation::toArray(int maxsize, int* array){
-   //fills the array
+   //Fills the array
    for (int i = 0; i < this->size(); i++){
-      std::cout<<"i = "<<i<<std::endl;
       for (int j = 0; j < this->arity(); j++){
          array[i*this->arity()+j]=this->getindex(i)[j];
       }

@@ -35,6 +35,7 @@ public:
    
    struct Atom{
       Atom();
+      ~Atom();
       Atom(Relation* relations, std::vector<std::string> variables);
       Relation* relations;
       std::vector<std::string> variables;

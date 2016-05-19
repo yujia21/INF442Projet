@@ -61,18 +61,6 @@ std::vector<std::vector<int> > commonOrder(std::vector<std::string> list1,
    order1.insert( order1.end(), notcommon1.begin(), notcommon1.end() );
    order2.insert( order2.end(), notcommon2.begin(), notcommon2.end() );
    
-   cout<<"Order 1: ";
-   for (it = order1.begin(); it != order1.end(); ++it){
-      cout<<*it<<" ";
-   }
-   cout <<"\n";
-
-   cout<<"Order 2: ";
-   for (it = order2.begin(); it != order2.end(); ++it){
-      cout<<*it<<" ";
-   }
-   cout <<"\n";   
-   
    orders.push_back(order1);
    orders.push_back(order2);
    orders.push_back(ncommonvar);

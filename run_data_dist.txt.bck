@@ -14,37 +14,29 @@ Number of intermediate relations :6 and 5
 Elapsed CPU (Join 2)= 0s
 Number of final relations :3
 
-File: midsize.dat
-Number of procs : 1
-Number of initial relations : 64 and 64
-Elapsed CPU (Join 1)= 0s
-Number of intermediate relations :736 and 64
-Elapsed CPU (Join 2)= 0.01s
-Number of final relations :98
-
-File: midsize.dat
+File: facebookshort.dat
 Number of procs : 2
-Number of initial relations : 64 and 64
-Elapsed CPU (Join 1)= 0s
-Number of intermediate relations :736 and 64
-Elapsed CPU (Join 2)= 0.01s
-Number of final relations :98
+Number of initial relations : 125523 and 125523
+Elapsed CPU (Join 1)= 27.15s
+Number of intermediate relations :13931707 and 125523
+Elapsed CPU (Join 2)= 120.58s
+Number of final relations :6237501
 
-File: midsize.dat
+File: facebookshort.dat
 Number of procs : 4
-Number of initial relations : 64 and 64
-Elapsed CPU (Join 1)= 0s
-Number of intermediate relations :736 and 64
-Elapsed CPU (Join 2)= 0s
-Number of final relations :98
+Number of initial relations : 125523 and 125523
+Elapsed CPU (Join 1)= 21.31s
+Number of intermediate relations :13931707 and 125523
+Elapsed CPU (Join 2)= 83.43s
+Number of final relations :6237501
 
-File: midsize.dat
+File: facebookshort.dat
 Number of procs : 8
-Number of initial relations : 64 and 64
-Elapsed CPU (Join 1)= 0s
-Number of intermediate relations :736 and 64
-Elapsed CPU (Join 2)= 0.01s
-Number of final relations :98
+Number of initial relations : 125523 and 125523
+Elapsed CPU (Join 1)= 24.3s
+Number of intermediate relations :13931707 and 125523
+Elapsed CPU (Join 2)= 91.48s
+Number of final relations :6237501
 
 File: facebookshort.dat
 Number of procs : 16
@@ -65,11 +57,56 @@ Number of final relations :6237501
 File: facebookshort.dat
 Number of procs : 64
 Number of initial relations : 125523 and 125523
-Elapsed CPU (Join 1)= 15.89s
+Elapsed CPU (Join 1)= 15.7s
 Number of intermediate relations :13931707 and 125523
-Elapsed CPU (Join 2)= 61.63s
+Elapsed CPU (Join 2)= 60.33s
 Number of final relations :6237501
 
-File: facebookshort.dat
-Number of procs : 128
-Number of initial relations : 125523 and 125523
+File: facebook.dat
+Number of procs : 2
+Number of initial relations : 176468 and 176468
+Elapsed CPU (Join 1)= 40.95s
+Number of intermediate relations :18806166 and 176468
+Elapsed CPU (Join 2)= 175.65s
+Number of final relations :9672060
+
+File: facebook.dat
+Number of procs : 4
+Number of initial relations : 176468 and 176468
+Elapsed CPU (Join 1)= 30.74s
+Number of intermediate relations :18806166 and 176468
+Elapsed CPU (Join 2)= 118.4s
+Number of final relations :9672060
+
+File: facebook.dat
+Number of procs : 8
+Number of initial relations : 176468 and 176468
+Elapsed CPU (Join 1)= 37.04s
+Number of intermediate relations :18806166 and 176468
+Elapsed CPU (Join 2)= 133.95s
+Number of final relations :9672060
+
+File: facebook.dat
+Number of procs : 16
+Number of initial relations : 176468 and 176468
+Elapsed CPU (Join 1)= 29.69s
+Number of intermediate relations :18806166 and 176468
+Elapsed CPU (Join 2)= 105.35s
+Number of final relations :9672060
+
+File: facebook.dat
+Number of procs : 32
+Number of initial relations : 176468 and 176468
+Elapsed CPU (Join 1)= 27.76s
+Number of intermediate relations :18806166 and 176468
+Elapsed CPU (Join 2)= 98.9s
+Number of final relations :9672060
+
+File: facebook.dat
+Number of procs : 64
+Number of initial relations : 176468 and 176468
+Elapsed CPU (Join 1)= 25.98s
+Number of intermediate relations :18806166 and 176468
+Elapsed CPU (Join 2)= 90.32s
+Number of final relations :9672060
+

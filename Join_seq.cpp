@@ -79,7 +79,7 @@ Relation::Atom join(Relation *r1, Relation *r2, std::vector<std::string> list1,
    vector<string> commonvar;
    
    if (size1 == 0 || size2 == 0){ //TO DO use assert or raise exceptions?
-      cerr << "No relations yet!" << endl;
+      //cerr << "No relations yet!" << endl;
    } else if (list1.size()!=r1->arity() || list2.size() != r2->arity()){
       cerr << "Number of variables don't match arity!" <<endl;
    } else {
