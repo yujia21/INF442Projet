@@ -7,74 +7,66 @@ Elapsed CPU (Join 2)= 0s
 Number of final relations :3
 
 File: triangles.dat
-Number of procs : 3
+Number of procs : 4
 Number of initial relations : 5 and 5
 Elapsed CPU (Join 1)= 0s
 Number of intermediate relations :6 and 5
 Elapsed CPU (Join 2)= 0s
 Number of final relations :3
 
-File: triangles.dat
-Number of procs : 3
-Number of initial relations : 5 and 5
+File: midsize.dat
+Number of procs : 1
+Number of initial relations : 64 and 64
 Elapsed CPU (Join 1)= 0s
-Number of intermediate relations :6 and 5
-Elapsed CPU (Join 2)= 0s
-Number of final relations :3
+Number of intermediate relations :736 and 64
+Elapsed CPU (Join 2)= 0.01s
+Number of final relations :98
 
-File: triangles.dat
-Number of procs : 3
-Number of initial relations : 5 and 5
+File: midsize.dat
+Number of procs : 2
+Number of initial relations : 64 and 64
 Elapsed CPU (Join 1)= 0s
-Number of intermediate relations :6 and 5
-Elapsed CPU (Join 2)= 0s
-Number of final relations :3
+Number of intermediate relations :736 and 64
+Elapsed CPU (Join 2)= 0.01s
+Number of final relations :98
 
-File: triangles.dat
-Number of procs : 3
-Number of initial relations : 5 and 5
+File: midsize.dat
+Number of procs : 4
+Number of initial relations : 64 and 64
 Elapsed CPU (Join 1)= 0s
-Number of intermediate relations :6 and 5
+Number of intermediate relations :736 and 64
 Elapsed CPU (Join 2)= 0s
-Number of final relations :3
+Number of final relations :98
 
-File: triangles.dat
-Number of procs : 3
-Number of initial relations : 5 and 5
+File: midsize.dat
+Number of procs : 8
+Number of initial relations : 64 and 64
 Elapsed CPU (Join 1)= 0s
-Number of intermediate relations :6 and 5
-Elapsed CPU (Join 2)= 0s
-Number of final relations :3
+Number of intermediate relations :736 and 64
+Elapsed CPU (Join 2)= 0.01s
+Number of final relations :98
 
-File: triangles.dat
-Number of procs : 3
-Number of initial relations : 5 and 5
-Elapsed CPU (Join 1)= 0s
-Number of intermediate relations :6 and 5
-Elapsed CPU (Join 2)= 0s
-Number of final relations :3
+File: facebookshort.dat
+Number of procs : 16
+Number of initial relations : 125523 and 125523
+Elapsed CPU (Join 1)= 16.97s
+Number of intermediate relations :13931707 and 125523
+Elapsed CPU (Join 2)= 72.3s
+Number of final relations :6237501
 
-File: triangles.dat
-Number of procs : 3
-Number of initial relations : 5 and 5
-Elapsed CPU (Join 1)= 0s
-Number of intermediate relations :6 and 5
-Elapsed CPU (Join 2)= 0s
-Number of final relations :3
+File: facebookshort.dat
+Number of procs : 32
+Number of initial relations : 125523 and 125523
+Elapsed CPU (Join 1)= 17.53s
+Number of intermediate relations :13931707 and 125523
+Elapsed CPU (Join 2)= 64.07s
+Number of final relations :6237501
 
-File: triangles.dat
-Number of procs : 3
-Number of initial relations : 5 and 5
-Elapsed CPU (Join 1)= 0s
-Number of intermediate relations :6 and 5
-Elapsed CPU (Join 2)= 0s
-Number of final relations :3
-
-File: triangles.dat
-Number of procs : 3
-Number of initial relations : 5 and 5
-Elapsed CPU (Join 1)= 0s
-Number of intermediate relations :6 and 5
-Elapsed CPU (Join 2)= 0s
-Number of final relations :3
+File: facebookshort.dat
+Number of procs : 64
+Number of initial relations : 125523 and 125523
+Elapsed CPU (Join 1)= 15.89s
+Number of intermediate relations :13931707 and 125523
+Elapsed CPU (Join 2)= 61.63s
+Number of final relations :6237501
 

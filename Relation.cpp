@@ -152,11 +152,14 @@ std::vector<int> Relation::getindex(int i){
 // TASK 5 : DISTRIBUTION
 void Relation::importArray(int* array, int size, int arity){
    for (int i = 0; i<size/arity; i++){
+      //std::cout<<array[i*arity]<<" at "<<i*arity<<std::endl;
       if (array[i*arity]>=0){
          std::vector<int> temp(arity);
          for (int j = 0; j < arity; j++){
             temp[j] = array[i*arity+j];
+            //std::cout<<temp[j]<<" ";
          }
+         //std::cout<<std::endl;
          this->relations.push_back(temp);
       }
    }

@@ -27,14 +27,14 @@ int distributeTupleHash(std::vector<int> v, int index, int m, double a){
 int* relationToDistArray(Relation* r, int numtasks, int index){
    int taskid;
    MPI_Comm_rank(MPI_COMM_WORLD, &taskid);         
-   std::cout<<"infunc "<<taskid<<std::endl;
-   r->toPrint();
+   //std::cout<<"infunc "<<taskid<<std::endl;
+   //r->toPrint();
    std::vector<std::vector<std::vector<int> > > arranged (numtasks); 
    for (int i = 0; i < r->size(); i++){
       std::vector<int> current = r->getindex(i);
 
       int n = distributeTuple(current, index, numtasks);      
-      //int n = distributeTupleHash(current, index, numtasks); //decomment for task6
+      //int n = distributeTupleHash(current, index, numtasks, 2.3); //decomment for task6
       arranged[n].push_back(current);
    }
    
@@ -59,6 +59,7 @@ int* relationToDistArray(Relation* r, int numtasks, int index){
          }
       }
    }
+   //delete &arranged;
    return array; 
 }
 
@@ -92,7 +93,7 @@ Relation::Atom joinDist(Relation* relations1, Relation* relations2,
       int index2 = temp[1][0];
       ncommonvar = temp[2][0];
       
-      //Construct array of array of array
+      //Construct array of relation 1 and 2
       array1 = relationToDistArray(relations1, numtasks, index1);
       array2 = relationToDistArray(relations2, numtasks, index2);      
       
@@ -106,60 +107,81 @@ Relation::Atom joinDist(Relation* relations1, Relation* relations2,
    //Don't want to calculate direct on each processus
    //because relationToDistArray is only called by root
    MPI_Bcast(&sizetosend1, 1, MPI_INT, root, MPI_COMM_WORLD);
-   MPI_Bcast(&sizetosend2, 1, MPI_INT, root, MPI_COMM_WORLD);   
+   MPI_Bcast(&sizetosend2, 1, MPI_INT, root, MPI_COMM_WORLD);
+   MPI_Bcast(&ncommonvar, 1, MPI_INT, root, MPI_COMM_WORLD);      
    
    //Initialize receiving arrays
-   int arraylocal1[sizetosend1];
-   int arraylocal2[sizetosend2];
+   int* arraylocal1;
+   arraylocal1 = new int [sizetosend1];
+   int* arraylocal2;
+   arraylocal2 = new int [sizetosend2];
 
-   cout<<"bcasted and arrays init"<<endl;
-      
    // Scatter
    MPI_Barrier(MPI_COMM_WORLD); //wait for arraylocal to be constructed in root
-   MPI_Scatter(array1,sizetosend1,MPI_INT, &arraylocal1, sizetosend1, MPI_INT, root, MPI_COMM_WORLD);
-   MPI_Scatter(array2,sizetosend2,MPI_INT, &arraylocal2, sizetosend2, MPI_INT, root, MPI_COMM_WORLD);   
+   MPI_Scatter(array1,sizetosend1,MPI_INT, arraylocal1, sizetosend1, MPI_INT, root, MPI_COMM_WORLD);
+   MPI_Scatter(array2,sizetosend2,MPI_INT, arraylocal2, sizetosend2, MPI_INT, root, MPI_COMM_WORLD);   
    
-   //Construct relation from array<array<int>> received
+   //Construct relation from array received
    Relation* relationlocal1 = new Relation();
    relationlocal1->importArray(arraylocal1,sizetosend1, arity[0]);
    Relation* relationlocal2 = new Relation();
    relationlocal2->importArray(arraylocal2,sizetosend2, arity[1]);
+   //cout<<"Proc " <<taskid<<" received and constructed relations"<<endl;
    
-   cout<<"scattered and relations constructed"<<endl;   
+   //MPI_Barrier(MPI_COMM_WORLD);    
+   //array1 = 0;
+   //delete array2;
+   //cout<<"deleted first arrays"<<endl;
+   //delete arraylocal1;
+   //delete arraylocal2;   
+   //cout<<"deleted arraylocals"<<endl;
    
    //Call join seq
    Relation::Atom a_local = join(relationlocal1,relationlocal2,list1,list2);
-   
-   cout<<"joined"<<endl;
+
+   //Find max of a_local relation size, and Bcast to all
+   int localsize = (arity[0]+arity[1]-ncommonvar)*a_local.relations->size();
+   //cout<<taskid<<" "<<"Local Size : "<<localsize<<endl;
+
+   int maxlocalsize;
+   MPI_Reduce(&localsize, &maxlocalsize, 1, MPI_INT, MPI_MAX, root, MPI_COMM_WORLD);
+   MPI_Bcast(&maxlocalsize, 1, MPI_INT, root, MPI_COMM_WORLD);
+   if (taskid==0){cout<<"maxlocalsize: "<<maxlocalsize<<endl;}
    
    //Create array to send back to root
-   int finalarraylocal[sizetosend1*sizetosend2];
-   a_local.relations->toArray(sizetosend1*sizetosend2, finalarraylocal);
-
-   int finalarray[sizetosend1*sizetosend2*numtasks];
+   int* finalarraylocal;
+   finalarraylocal=new int[maxlocalsize]; 
+   
+   if (localsize==0){
+      for (int i = 0; i<maxlocalsize;i++){
+         finalarraylocal[i]=-1;
+      }
+   } else {
+      a_local.relations->toArray(maxlocalsize, finalarraylocal); 
+   }
+   
+   int* finalarray;
+   finalarray = new int[maxlocalsize*numtasks];
+   //cout<<"finalarray created on "<<taskid<<endl;
    
    // Gather 
-   MPI_Gather(&finalarraylocal, sizetosend1*sizetosend2, MPI_INT, &finalarray, sizetosend1*sizetosend2, MPI_INT,
+   MPI_Gather(finalarraylocal, maxlocalsize, MPI_INT, finalarray, maxlocalsize, MPI_INT,
          root, MPI_COMM_WORLD);
-   cout<<"gathered"<<endl;
    
-   cout<<"proc "<<taskid<<endl;
-   for (int i = 0;i<sizetosend1*sizetosend2*numtasks;i++){
-      cout<<finalarray[i]<<" ";
-   }
-   cout<<endl;
-      
    MPI_Barrier(MPI_COMM_WORLD); //wait for gather to be done
    if (taskid == root){
-      // Take array of array of array of int and put back in new relation
-      cout<<"Size before : "<<a_local.relations->size()<<endl;
+      //cout<<"Post gather"<<endl;
+      // Take array and put back in relation
       a_local.relations = new Relation();
-      a_local.relations->importArray(finalarray, sizetosend1*sizetosend2*numtasks,
+      a_local.relations->importArray(finalarray, maxlocalsize*numtasks,
             arity[0]+arity[1]-ncommonvar);
-      cout<<"Size after : "<<a_local.relations->size()<<endl;
-      
-      cout<<"After join"<<endl;
-      a_local.relations->toPrint();
+      cout<<"Post join size of relations : "<<a_local.relations->size()<<endl;
       return a_local;
    }
+      
+   //MPI_Barrier(MPI_COMM_WORLD);    
+   //delete finalarraylocal;
+   //cout<<"deleted finalarraylocals"<<endl;   
+   //delete finalarray;
+   //cout<<"deleted finalarrays"<<endl;  
 }
