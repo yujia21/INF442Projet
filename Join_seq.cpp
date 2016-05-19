@@ -51,7 +51,6 @@ std::vector<std::vector<int> > commonOrder(std::vector<std::string> list1,
       }
    }
    
-   cout << "Number of common vars: " << ncommonvar[0] <<endl;
    for (int j = 0;j<list2.size();j++){
       if (find(order2.begin(),order2.end(),j)==order2.end()){
          notcommon2.push_back(j);
@@ -61,18 +60,6 @@ std::vector<std::vector<int> > commonOrder(std::vector<std::string> list1,
    //fill in non-common indexes for orders
    order1.insert( order1.end(), notcommon1.begin(), notcommon1.end() );
    order2.insert( order2.end(), notcommon2.begin(), notcommon2.end() );
-   
-   cout<<"Order 1: ";
-   for (it = order1.begin(); it != order1.end(); ++it){
-      cout<<*it<<" ";
-   }
-   cout <<"\n";
-
-   cout<<"Order 2: ";
-   for (it = order2.begin(); it != order2.end(); ++it){
-      cout<<*it<<" ";
-   }
-   cout <<"\n";   
    
    orders.push_back(order1);
    orders.push_back(order2);

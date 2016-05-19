@@ -108,10 +108,8 @@ void Relation::sortrelations(std::vector<int> neworder){
       if (neworder.size()!=arity){
         cout << "Order has wrong arity!" << endl;
       } else {
-         cout << "Sorting..." <<endl;
          std::sort (this->relations.begin(),
                this->relations.end(),Order(neworder)); 
-         cout << "Sorted!" <<endl;
       }
    }
 }
@@ -119,6 +117,11 @@ void Relation::sortrelations(std::vector<int> neworder){
 // TASK 3 : JOIN 
 void Relation::addrelation(std::vector<int> r){
    this->relations.push_back(r);
+}
+
+Relation::Atom::Atom(){
+   this->relations = new Relation();
+   std::vector<std::string > variables;
 }
 
 Relation::Atom::Atom(Relation* relations, std::vector<std::string> variables){
@@ -149,9 +152,7 @@ std::vector<int> Relation::getindex(int i){
 // TASK 5 : DISTRIBUTION
 void Relation::importArray(int* array, int size, int arity){
    for (int i = 0; i<size/arity; i++){
-      if (array[i*arity]<0){
-         break;
-      } else {
+      if (array[i*arity]>=0){
          std::vector<int> temp(arity);
          for (int j = 0; j < arity; j++){
             temp[j] = array[i*arity+j];
@@ -170,5 +171,16 @@ void Relation::toArray(int maxsize, int* array){
    }
    for (int i = this->size()*this->arity() ; i < maxsize ; i++){
       array[i] = -1;
+   }
+}
+
+
+void Relation::toPrint(){
+   std::cout<<"Printing Relation"<<std::endl;
+   for (int i = 0; i<this->size();i++){
+      for (int j = 0; j<this->arity();j++){
+         std::cout<<this->getindex(i)[j]<<" ";
+      }
+      std::cout<<std::endl;
    }
 }

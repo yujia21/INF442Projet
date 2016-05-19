@@ -34,6 +34,7 @@ public:
    //TASK 3 and 4
    
    struct Atom{
+      Atom();
       Atom(Relation* relations, std::vector<std::string> variables);
       Relation* relations;
       std::vector<std::string> variables;
@@ -49,6 +50,7 @@ public:
    //takes a 1d array of size,ignores negative. Needs arity to start construction
    
    void toArray(int maxsize, int* array); //makes a 1d array
+   void toPrint();
 };
 
 #endif

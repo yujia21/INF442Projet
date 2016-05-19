@@ -51,7 +51,6 @@ std::vector<std::vector<int> > commonOrder(std::vector<std::string> list1,
       }
    }
    
-   cout << "Number of common vars: " << ncommonvar[0] <<endl;
    for (int j = 0;j<list2.size();j++){
       if (find(order2.begin(),order2.end(),j)==order2.end()){
          notcommon2.push_back(j);

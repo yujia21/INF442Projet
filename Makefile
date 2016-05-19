@@ -7,6 +7,9 @@ Relation.o: Relation.cpp Relation.hpp
 Join_seq.o: Join_seq.cpp Join_seq.hpp
 	$(CC) -c Join_seq.cpp
         
+Join_dist.o: Join_dist.cpp Join_dist.hpp Join_seq.hpp Relation.hpp
+	$(MPICC) -c Join_dist.cpp           
+        
 task1.o: task1.cpp Relation.hpp
 	$(CC) -c task1.cpp
 
@@ -21,7 +24,7 @@ task4.o: task4.cpp Relation.hpp
         
 task5.o: task5.cpp Relation.hpp
 	$(MPICC) -c task5.cpp        
-
+        
 task1: Relation.o task1.o
 	$(CC) Relation.o task1.o -o task1
 
@@ -34,8 +37,8 @@ task3: Relation.o Join_seq.o task3.o
 task4: Relation.o Join_seq.o task4.o
 	$(CC) Relation.o Join_seq.o task4.o -o task4
         
-task5: Relation.o task5.o Join_seq.o
-	$(MPICC) Relation.o Join_seq.o task5.o -o task5
+task5: Relation.o task5.o Join_dist.o Join_seq.o
+	$(MPICC) Relation.o Join_dist.o Join_seq.o task5.o -o task5
 
 clean: 
 	rm -f task1
@@ -43,7 +46,6 @@ clean:
 	rm -f task3
 	rm -f task4
 	rm -f task5                
-	rm -f *.exe        
 	rm -f *.o
 
 cleantestoutput:

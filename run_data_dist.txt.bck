@@ -1,12 +1,70 @@
 File: triangles.dat
-Number of initial relations : 5
+Number of procs : 2
+Number of initial relations : 5 and 5
 Elapsed CPU (Join 1)= 0s
-Number of intermediate relations : 6
+Number of intermediate relations :6 and 5
+Elapsed CPU (Join 2)= 0s
+Number of final relations :3
+
 File: triangles.dat
-Number of initial relations : 5
+Number of procs : 2
+Number of initial relations : 5 and 5
 Elapsed CPU (Join 1)= 0s
-Number of intermediate relations : 3
+Number of intermediate relations :6 and 5
+Elapsed CPU (Join 2)= 0s
+Number of final relations :3
+
+File: facebookshort.dat
+Number of procs : 2
+Number of initial relations : 125523 and 125523
+File: facebookshort.dat
+Number of procs : 2
+Number of initial relations : 125523 and 125523
 File: triangles.dat
-Number of initial relations : 5
+Number of procs : 3
+Number of initial relations : 5 and 5
 Elapsed CPU (Join 1)= 0s
-Number of intermediate relations : 6
+Number of intermediate relations :6 and 5
+Elapsed CPU (Join 2)= 0s
+Number of final relations :3
+
+File: triangles.dat
+Number of procs : 3
+Number of initial relations : 5 and 5
+Elapsed CPU (Join 1)= 0s
+Number of intermediate relations :6 and 5
+Elapsed CPU (Join 2)= 0s
+Number of final relations :3
+
+File: triangles.dat
+Number of procs : 3
+Number of initial relations : 5 and 5
+Elapsed CPU (Join 1)= 0s
+Number of intermediate relations :6 and 5
+Elapsed CPU (Join 2)= 0s
+Number of final relations :3
+
+File: triangles.dat
+Number of procs : 3
+Number of initial relations : 5 and 5
+Elapsed CPU (Join 1)= 0s
+Number of intermediate relations :6 and 5
+Elapsed CPU (Join 2)= 0s
+Number of final relations :3
+
+File: triangles.dat
+Number of procs : 3
+Number of initial relations : 5 and 5
+Elapsed CPU (Join 1)= 0s
+Number of intermediate relations :6 and 5
+Elapsed CPU (Join 2)= 0s
+Number of final relations :3
+
+File: triangles.dat
+Number of procs : 3
+Number of initial relations : 5 and 5
+Elapsed CPU (Join 1)= 0s
+Number of intermediate relations :6 and 5
+Elapsed CPU (Join 2)= 0s
+Number of final relations :3
+
