@@ -128,8 +128,8 @@ Relation::Atom joinDist(Relation* relations1, Relation* relations2,
    relationlocal2->importArray(arraylocal2,sizetosend2, arity[1]);
    //cout<<"Proc " <<taskid<<" received and constructed relations"<<endl;
    
-   MPI_Barrier(MPI_COMM_WORLD);    
-   array1 = 0;
+   //MPI_Barrier(MPI_COMM_WORLD);    
+   //array1 = 0;
    //delete array2;
    //cout<<"deleted first arrays"<<endl;
    //delete arraylocal1;

@@ -27,7 +27,7 @@ int distributeTupleHash(std::vector<int> v, int index, int m, double a){
 int* relationToDistArray(Relation* r, int numtasks, int index){
    int taskid;
    MPI_Comm_rank(MPI_COMM_WORLD, &taskid);         
-   //std::cout<<"infunc "<<taskid<<std::endl;
+   if (taskid==root){std::cout<<"infunc "<<taskid<<std::endl;}
    //r->toPrint();
    std::vector<std::vector<std::vector<int> > > arranged (numtasks); 
    for (int i = 0; i < r->size(); i++){
