@@ -87,7 +87,7 @@ Relation::Atom join(Relation *r1, Relation *r2, std::vector<std::string> list1,
       int arity2 = r2->arity();
 
       //1. Find common variables
-      vector<int>::iterator it;      
+      vector<int>::iterator it;
       vector<vector<int> > temp = commonOrder(list1,list2);
       vector<int> order1 = temp[0];
       vector<int> order2 = temp[1];
