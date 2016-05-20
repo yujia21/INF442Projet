@@ -5,12 +5,37 @@
 #include "mpi.h" //mpi
 
 #include <iostream>  //std::cout
-#include <fstream>  //fstream
 #include <string>  //std::string
 #include <vector>  //std::vector
+#include <sstream>  //std::sort
+#include <iterator> //std::istringstream
+#include <algorithm> //std::sort
 
 #include <time.h> //track runtime
 #include <sys/time.h>  //track runtime
+
+void relationToDistArrayOptimized(Relation* r, int recv, int index, int* array){
+`  std::vector<vector<int> > temp;
+   for (int i = 0; i < r->size(); i++){
+      if (r->getindex(i)[index] % m == recv){
+         temp.pushback(r->getindex(i));
+      }
+   }
+   int arity = 0;
+   if (r->size()!=0){
+      arity = r->arity();
+   }
+   array = new int[temp.size()*arity+1];
+   array[0] = temp.size()*arity;
+
+   for (int i = 0; i<temp.size();i++){
+      for (int j = 0; j < arity; j++){
+         array[1+i*arity+j] = temp[i][j];
+      }
+   }
+
+   std::vector<std::vector<std::vector<int> > >().swap(temp); 
+}
 
 int main (int argc, char **argv) {
    using namespace std;
@@ -77,7 +102,6 @@ int main (int argc, char **argv) {
       <<"Number of initial relations : "<<relations1->size()<<" and "
             <<relations2->size()<<endl;
       data.close();
-      
    }
    
    //Waits for all to reach this point
@@ -159,50 +183,83 @@ int main (int argc, char **argv) {
    
    //Reset indexes for r1r2 and r3 on each proc
    //If a_local is empty ?
-   vector<vector<int> > temp = commonOrder(a_local->variables,list3);
+   vector<string> list4 = a_local->variables;   
+   vector<vector<int> > temp = commonOrder(list4,list3);
    index1 = temp[0][0]; //Comparison column
    index2 = temp[1][0];
    ncommonvar = temp[2][0];
    
-   //Reset array1 for local arrays on each proc, reset array2 to list3 on root
-   array1 = relationToDistArray(a_local->relations, numtasks, index1);
+   //Reset arity
+   arity[0] = list4.size();
+   arity[1] = list3.size();      
+   
+   //Reset array2 to r3 on root, sizetosend
    if (taskid==root){
       array2 = relationToDistArray(relations3, numtasks, index2);
       sizetosend2 = array2[0]/numtasks;      
    }
    
+   //Each proc receives relation3 relations
    MPI_Scatter(&array2[1],sizetosend2,MPI_INT, arraylocal2, sizetosend2, MPI_INT, root, MPI_COMM_WORLD);
-   
-   /* HOW SHOULD JOIN DIST OPTIMIZED WORK
-if root 
-   using distributeTuple. Take note of index to use
-
-scatter
-
-on all
-   construct relation from array received
-   call join seq
-   extract array from atom
-
-   construct array to distribute by distributeTuple
-   
-   receive (r1r2)
-   join seq on (r1r2) and r3
-   
-gather
-
-if root
-   take array and put back in new relation
-   change relation of atom that came from join seq
-
-return atom*/
-
-
-
+   Relation* relationlocal2 = new Relation();
+   relationlocal2->importArray(arraylocal2,sizetosend2, arity[1]);
 
 
    
    
+   
+   
+   
+   
+   
+   
+   
+   
+   
+   //array1[i] stocks array to send to ith processor
+   int** array1;
+   array1=new int*[numtasks];
+   int* arraylocal1;      
+   int* recvcount;
+   recvcount = new int[numtasks];
+   int* displs;
+   displs = new int[numtasks];   
+   
+   //Each proc stocks to array1[i] what it will send to i
+   for (int i = 0; i < numtasks; i++){
+      relationToDistArrayOptimized(a_local->relations, i, index1, array1[i]);
+   }
+
+   //Each proc i gathers all meant for proc i (array1[i] from each)
+   for (int i = 0; i < numtasks; i++){      
+      //puts in recvcount[j] the size of what is received from j
+      MPI_Gather(array1[i][0], 1, MPI_INT, recvcount, 1, MPI_INT, i, MPI_COMM_WORLD);
+      displs[0] = 0;
+      for (int j = 1; j < numtasks; j++){
+         displs[j]=displs[j-1]+recvcount[j];
+      }
+
+      //puts in arraylocal1 everything      
+      sizetosend1=displs[numtasks-1]+recvcount[numtasks-1];
+      arraylocal1 = new int[sizetosend1];
+      MPI_Gatherv(&(array1[i][1]), array1[i][0], MPI_INT, arraylocal1, recvcount, displs, MPI_INT, i, MPI_COMM_WORLD);
+   }
+   
+
+   
+   
+      
+
+   
+   
+   
+
+
+   Relation* relationlocal1 = new Relation();
+   relationlocal1->importArray(arraylocal1,sizetosend1, arity[0]);
+
+   //Each join seq on (r1r2) and  r3
+   a_local = join(relationlocal1,relationlocal2,list4,list3);
    
    //Find max of a_local relation size, and Bcast to all
    int finalarity = arity[0]+arity[1]-ncommonvar;
@@ -247,40 +304,17 @@ return atom*/
 
    //Return atom of root
    if (taskid == root){
-      return a_local;
-   }
-
-   
-   
-   
-   
-   
-   
-   //Waits for all to reach this point
-   MPI_Barrier(MPI_COMM_WORLD);
-   if (taskid==root){cout<<"Second Join"<<endl;}   
-   //Everyone creates a_local_final, but only root has the complete one
-   Relation::Atom a_local_final =
-         joinDist(a_local.relations,relations3,a_local.variables,list3,root);
-   //Waits for all to exit join
-   MPI_Barrier(MPI_COMM_WORLD);
-   
-   //Clear memory of a_local and relations3. TO DO : this causes segmentation fault?
-   //(&a_local)->~Atom();
-   //relations3->~Relation();
-   
-   if (taskid == root){
       //Write final runtime and relations data
       toc = clock();
       ofstream data(outputFile, ios::out | ios::app);
       data<< "Elapsed CPU (Join 2)= "
          << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl; 
       data<<"Number of final relations :"
-            <<a_local_final.relations->size()<<endl<<endl;
+            <<a_local.relations->size()<<endl<<endl;
       data.close();
       
       char* outfile = "testoutput_dist";
-      a_local_final.relations->write(outfile);
+      a_local.relations->write(outfile);
    }
    
    MPI_Finalize();     
