@@ -1,0 +1,21 @@
+File: triangles.dat
+Number of procs : 2
+Number of initial relations : 5 and 5
+File: triangles.dat
+Number of procs : 4
+Number of initial relations : 5 and 5
+File: triangles.dat
+Number of procs : 2
+Number of initial relations : 5 and 5
+File: triangles.dat
+Number of procs : 2
+Number of initial relations : 5 and 5
+File: triangles.dat
+Number of procs : 2
+Number of initial relations : 5 and 5
+File: triangles.dat
+Number of procs : 2
+Number of initial relations : 5 and 5
+File: triangles.dat
+Number of procs : 2
+Number of initial relations : 5 and 5

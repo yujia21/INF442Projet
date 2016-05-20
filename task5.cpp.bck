@@ -121,7 +121,7 @@ int main (int argc, char **argv) {
    if (taskid == root){
       //Write final runtime and relations data
       toc = clock();
-      ofstream data(outputFile, ios::out | ios::app);
+      ofstream data.open(outputFile, ios::out | ios::app);
       data<< "Elapsed CPU (Join 2)= "
          << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl; 
       data<<"Number of final relations :"

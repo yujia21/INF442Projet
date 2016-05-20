@@ -90,3 +90,9 @@ File: facebook.dat
 Number of procs : 64
 Number of initial relations : 176468 and 176468
 Memory overflow
+File: triangles.dat
+Number of procs : 2
+Number of initial relations : 5 and 5
+File: triangles.dat
+Number of procs : 2
+Number of initial relations : 5 and 5

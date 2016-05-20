@@ -5,6 +5,7 @@
 #include "mpi.h" //mpi
 
 #include <iostream>  //std::cout
+#include <fstream>  //fstream
 #include <string>  //std::string
 #include <vector>  //std::vector
 #include <sstream>  //std::sort
@@ -14,11 +15,11 @@
 #include <time.h> //track runtime
 #include <sys/time.h>  //track runtime
 
-void relationToDistArrayOptimized(Relation* r, int recv, int index, int* array){
-`  std::vector<vector<int> > temp;
+void relationToDistArrayOptimized(Relation* r, int recv, int index, int m, int* array){
+   std::vector<std::vector<int> > temp;
    for (int i = 0; i < r->size(); i++){
       if (r->getindex(i)[index] % m == recv){
-         temp.pushback(r->getindex(i));
+         temp.push_back(r->getindex(i));
       }
    }
    int arity = 0;
@@ -34,7 +35,7 @@ void relationToDistArrayOptimized(Relation* r, int recv, int index, int* array){
       }
    }
 
-   std::vector<std::vector<std::vector<int> > >().swap(temp); 
+   std::vector<std::vector<int> >().swap(temp); 
 }
 
 int main (int argc, char **argv) {
@@ -64,7 +65,8 @@ int main (int argc, char **argv) {
    vector<string> list1 (arr1, arr1 + sizeof(arr1) / sizeof(arr1[0]) );
    vector<string> list2 (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );   
    vector<string> list3 (arr3, arr3 + sizeof(arr3) / sizeof(arr3[0]) );  
-
+   vector<string> list4;
+   
    //For broadcast. Relations initialized on all, to be able to be accessed later
    Relation* relations1;
    Relation* relations2;
@@ -72,7 +74,7 @@ int main (int argc, char **argv) {
    
    //To write
    char* outputFile;
-   outputFile = "run_data_dist_6.txt";
+   outputFile = "run_data_dist_7.txt";
    
    if (taskid==root){      
       //Read file
@@ -109,42 +111,66 @@ int main (int argc, char **argv) {
    
    if (taskid==root){cout<<"First Join"<<endl;}
    
-   // Send arity of relations
-   int arity[2];    
+   // Send arity of relations 1 to 3
+   int arity[3];    
    if (taskid==root){
       arity[0] = relations1->arity();
       arity[1] = relations2->arity();      
+      arity[2] = relations3->arity();            
    }
-   MPI_Bcast(&arity, 2, MPI_INT, root, MPI_COMM_WORLD);
+   MPI_Bcast(&arity, 3, MPI_INT, root, MPI_COMM_WORLD);
    
    // To scatter and gather arrays, sizetosend, ncommonvar
    int* array1;
    int* array2; 
    int sizetosend1; //max*arity
    int sizetosend2;
-   int ncommonvar;   
+   int sizetosend3;
+   int sizetosend4;
+   int ncommonvar1;
+   int ncommonvar2;   
+   int index1;
+   int index2;
+   int index3;
+   int index4;   
    
    if (taskid==root){         
-      //Get common vars
+      //Get common vars for r1 r2
       vector<vector<int> > temp = commonOrder(list1,list2);
-      int index1 = temp[0][0]; //Comparison column
-      int index2 = temp[1][0];
-      ncommonvar = temp[2][0];
+      index1 = temp[0][0]; //Comparison column
+      index2 = temp[1][0];
+      ncommonvar1 = temp[2][0];
       
-      //Construct array of relation 1 and 2
+      //Create list for (r1r2)
+      list4.insert(list4.end(),list1.begin(),list1.end());
+      for (it = temp[1].begin()+ncommonvar;it != temp[1].end();++it){
+         list4.push_back(list2[*it]);
+      }
+      
+      //Get common vars for r3 r4
+      vector<vector<int> > temp2 = commonOrder(list3,list4);
+      index3 = temp2[0][0];
+      index4 = temp2[0][0];      
+      ncommonvar2 = temp2[2][0]
+      
+      //Construct array of relation 1 to 3
       array1 = relationToDistArray(relations1, numtasks, index1);
       array2 = relationToDistArray(relations2, numtasks, index2);      
+      array3 = relationToDistArray(relations3, numtasks, index3);
       
       //Get size to send
       sizetosend1 = array1[0]/numtasks;
       sizetosend2 = array2[0]/numtasks;
+      sizetosend3 = array3[0]/numtasks;
    } 
    //Broadcast sizetosend
    //Don't want to calculate direct on each processus
    //because relationToDistArray is only called by root
    MPI_Bcast(&sizetosend1, 1, MPI_INT, root, MPI_COMM_WORLD);
    MPI_Bcast(&sizetosend2, 1, MPI_INT, root, MPI_COMM_WORLD);
-   MPI_Bcast(&ncommonvar, 1, MPI_INT, root, MPI_COMM_WORLD);      
+   MPI_Bcast(&sizetosend3, 1, MPI_INT, root, MPI_COMM_WORLD);   
+   MPI_Bcast(&ncommonvar1, 1, MPI_INT, root, MPI_COMM_WORLD);      
+   MPI_Bcast(&ncommonvar2, 1, MPI_INT, root, MPI_COMM_WORLD);         
    
    //Initialize receiving arrays
    int* arraylocal1;
@@ -181,9 +207,11 @@ int main (int argc, char **argv) {
    relationlocal1->~Relation();
    relationlocal2->~Relation();   
    
+   cout<<taskid<<" called join"<<endl;
+
    //Reset indexes for r1r2 and r3 on each proc
    //If a_local is empty ?
-   vector<string> list4 = a_local->variables;   
+   vector<string> list4 = a_local.variables;   
    vector<vector<int> > temp = commonOrder(list4,list3);
    index1 = temp[0][0]; //Comparison column
    index2 = temp[1][0];
@@ -196,15 +224,31 @@ int main (int argc, char **argv) {
    //Reset array2 to r3 on root, sizetosend
    if (taskid==root){
       array2 = relationToDistArray(relations3, numtasks, index2);
-      sizetosend2 = array2[0]/numtasks;      
+
+      sizetosend2 = array2[0]/numtasks;
+      for (int i = 0; i<sizetosend2;i++){
+         cout<<array2[i+1]<<" ";
+      }
+      cout<<endl;
    }
+   MPI_Bcast(&sizetosend2, 1, MPI_INT, root, MPI_COMM_WORLD);
    
+   cout<<taskid<<" all reset"<<endl;   
+   
+   MPI_Barrier(MPI_COMM_WORLD); //Make sure all reset before scatter. Necessary?
    //Each proc receives relation3 relations
    MPI_Scatter(&array2[1],sizetosend2,MPI_INT, arraylocal2, sizetosend2, MPI_INT, root, MPI_COMM_WORLD);
-   Relation* relationlocal2 = new Relation();
+   cout<<taskid<<" r3 scattered"<<endl;
+   if (taskid==root){
+      for (int i = 0; i < sizetosend2;i++){
+         cout<<arraylocal2[i]<<" ";
+      }
+   }
+   cout<<endl;
+   
    relationlocal2->importArray(arraylocal2,sizetosend2, arity[1]);
 
-
+   cout<<taskid<<" r3 imported"<<endl;   
    
    
    
@@ -214,12 +258,9 @@ int main (int argc, char **argv) {
    
    //EACH PROC I SENDS TO PROC J WHAT IS NEEDED FOR J
    
-   
-   
-   //array1[i] stocks array to send to ith processor
-   int** array1;
-   array1=new int*[numtasks];
-   int* arraylocal1;      
+   //sendarray1[i] stocks array to send to ith processor
+   int** sendarray1;
+   sendarray1=new int*[numtasks];
    int* recvcount;
    recvcount = new int[numtasks];
    int* displs;
@@ -227,13 +268,14 @@ int main (int argc, char **argv) {
    
    //Each proc stocks to array1[i] what it will send to i
    for (int i = 0; i < numtasks; i++){
-      relationToDistArrayOptimized(a_local->relations, i, index1, array1[i]);
+      relationToDistArrayOptimized(a_local.relations, i, index1, numtasks, sendarray1[i]);
    }
-
+   MPI_Barrier(MPI_COMM_WORLD);
+   
    //Each proc i gathers all meant for proc i (array1[i] from each)
    for (int i = 0; i < numtasks; i++){      
       //puts in recvcount[j] the size of what is received from j
-      MPI_Gather(array1[i][0], 1, MPI_INT, recvcount, 1, MPI_INT, i, MPI_COMM_WORLD);
+      MPI_Gather(&(sendarray1[i][0]), 1, MPI_INT, recvcount, 1, MPI_INT, i, MPI_COMM_WORLD);
       displs[0] = 0;
       for (int j = 1; j < numtasks; j++){
          displs[j]=displs[j-1]+recvcount[j];
@@ -242,7 +284,9 @@ int main (int argc, char **argv) {
       //puts in arraylocal1 everything      
       sizetosend1=displs[numtasks-1]+recvcount[numtasks-1];
       arraylocal1 = new int[sizetosend1];
-      MPI_Gatherv(&(array1[i][1]), array1[i][0], MPI_INT, arraylocal1, recvcount, displs, MPI_INT, i, MPI_COMM_WORLD);
+      
+      MPI_Gatherv(&(sendarray1[i][1]), sendarray1[i][0],
+            MPI_INT, arraylocal1, recvcount, displs, MPI_INT, i, MPI_COMM_WORLD);
    }
    
 
@@ -255,7 +299,6 @@ int main (int argc, char **argv) {
    
 
 
-   Relation* relationlocal1 = new Relation();
    relationlocal1->importArray(arraylocal1,sizetosend1, arity[0]);
 
    //Each join seq on (r1r2) and  r3
