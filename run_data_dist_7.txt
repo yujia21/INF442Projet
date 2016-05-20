@@ -1,21 +1,12 @@
 File: triangles.dat
 Number of procs : 2
-Number of initial relations : 5 and 5
+Number of initial relations : 7 and 7
+Elapsed CPU = 0.01s
+Number of final relations :2
+
 File: triangles.dat
-Number of procs : 4
-Number of initial relations : 5 and 5
-File: triangles.dat
-Number of procs : 2
-Number of initial relations : 5 and 5
-File: triangles.dat
-Number of procs : 2
-Number of initial relations : 5 and 5
-File: triangles.dat
-Number of procs : 2
-Number of initial relations : 5 and 5
-File: triangles.dat
-Number of procs : 2
-Number of initial relations : 5 and 5
-File: triangles.dat
-Number of procs : 2
-Number of initial relations : 5 and 5
+Number of procs : 3
+Number of initial relations : 7 and 7
+Elapsed CPU = 0s
+Number of final relations :0
+
