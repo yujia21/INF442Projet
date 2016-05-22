@@ -4,10 +4,7 @@
 #include "Relation.hpp"
 #include "Join_seq.hpp"
 
-//TASK 5 
-//given : m = total number of machines, index = column to compare, v = vector to send
-//returns machine to send to
-int distributeTuple(std::vector<int> v, int index, int m);
+//TASK 5 et 6
 
 //Root calls this function to create return a 1D array
 //max = max number of relations that a proc has
@@ -25,7 +22,8 @@ Relation::Atom joinDist(Relation* relations1, Relation* relations2,
       int root, double hashParameter);
 
 //TASK 6
-//given : m = total number of machines, index = column to compare, v = vector to send
+//given : m = total number of machines, index = column to compare, v = vector to send, 
+//a = hash parameter for hash function (if 0, uses modulo)
 //returns machine to send to
 int distributeTupleHash(std::vector<int> v, int index, int m, double a);
 

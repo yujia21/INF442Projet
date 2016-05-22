@@ -64,3 +64,6 @@ clean:
 
 cleantestoutput:
 	rm -f testoutput*
+
+cleanrundata:
+	rm -f run_data*

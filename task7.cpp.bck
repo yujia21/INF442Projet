@@ -247,22 +247,11 @@ int main (int argc, char **argv) {
    int* rdispls;
    rdispls = new int[numtasks];   
 
-   
-   
-   
-   
-   
-   
-   // POSSIBLE BUGS FROM HERE ON   
-      
    //Each proc concatenates in sendvect what it will send to 1, 2, ... numtasks
    
    for (int i = 0; i < numtasks; i++){
       vector<vector<int> > temp = relationToDistArrayOptimized(a_local.relations, i, index[3], numtasks);
       sendvect.insert(sendvect.end(),temp.begin(),temp.end()); //concatenate vectors in order
-      
-      cout<<taskid<<" sends "<<temp.size()<<" to "<<i<<endl;
-
       sizetosend4[i] = 3*temp.size(); //stock size to be sent to each indiv proc //FAULT 3 pour l'arité !!!!
    }
    
@@ -273,14 +262,6 @@ int main (int argc, char **argv) {
    //puts in recvcount[j] the size of what is received from proc j
    MPI_Alltoall(sizetosend4, 1, MPI_INT, recvcount, 1, MPI_INT, MPI_COMM_WORLD);
    
-   for (int i = 0; i < numtasks; i++){
-      cout<<taskid<<" receives "<<recvcount[i]<<" from "<<i<<endl; 
-      //"FAULT" il y avait sizetosend4 a la place de recvcount
-   }
-   
-   //DEBUG attendre pour afficher
-   MPI_Barrier(MPI_COMM_WORLD);
-
    //Calculates displacement for sending and receiving on each
    rdispls[0] = 0;
    sdispls[0] = 0;
@@ -289,7 +270,7 @@ int main (int argc, char **argv) {
       sdispls[j]=sdispls[j-1]+sizetosend4[j-1];
    } 
 
-   //puts in arraylocal4 everything 
+   //Puts in arraylocal4 everything 
    size4 =rdispls[numtasks-1]+recvcount[numtasks-1];
    arraylocal4 = new int[size4];
    
@@ -300,23 +281,9 @@ int main (int argc, char **argv) {
 
    MPI_Barrier(MPI_COMM_WORLD);
    
-   //END POSSIBLE BUGS   
-   
-   
-   
-   
-   
-   
    //Create (r1r2) relation
    Relation* relationlocal4 = new Relation();
    relationlocal4->importArray(arraylocal4, size4, arity[3]);
-   /*
-   cout<<"proc "<<taskid<<" ";
-   relationlocal4->toPrint();
-   */
-   
-   //DEBUG attendre pour afficher
-   MPI_Barrier(MPI_COMM_WORLD);
 
    if (taskid==root){cout<<"Starting second join"<<endl;}         
    //Each join seq on (r1r2) and  r3
@@ -377,11 +344,9 @@ int main (int argc, char **argv) {
             <<a_local.relations->size()<<endl<<endl;
       data.close();
       
-      char* outfile = "testoutput_dist_7";
+      char* outfile = "testoutput_task7";
       a_local.relations->write(outfile);
    }
    
    MPI_Finalize();     
 }
-
-//With file triangles : should be getting all combinations of 102 and 204

@@ -46,8 +46,8 @@ task4: Relation.o Join_seq.o task4.o
 task5: Relation.o Join_seq.o Join_dist.o task5.o
 	$(MPICC) Relation.o Join_seq.o Join_dist.o task5.o -o task5
 
-task7: Relation.o Join_seq.o task7.o
-	$(MPICC) Relation.o Join_seq.o task7.o -o task7
+task7: Relation.o Join_seq.o Join_dist.o task7.o
+	$(MPICC) Relation.o Join_seq.o Join_dist.o task7.o -o task7
         
 task8: Relation.o Join_seq.o task8.o
 	$(MPICC) Relation.o Join_seq.o task8.o -o task8
