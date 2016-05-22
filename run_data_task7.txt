@@ -1,0 +1,12 @@
+File: triangles.dat
+Number of procs : 8
+Number of initial relations : 7 and 7
+Elapsed CPU = 0s
+Number of final relations :6
+
+File: facebook.dat
+Number of procs : 2
+Number of initial relations : 176468 and 176468
+Elapsed CPU = 150.02s
+Number of final relations :9672060
+

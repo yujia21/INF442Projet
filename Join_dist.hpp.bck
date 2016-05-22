@@ -21,7 +21,7 @@ int* relationToDistArray(Relation* r, int numtasks, int index);
 //Join Dist
 Relation::Atom joinDist(Relation* relations1, Relation* relations2,
       std::vector<std::string> list1, std::vector<std::string> list2, 
-      int root);
+      int root, double hashParameter);
 
 //TASK 6
 //given : m = total number of machines, index = column to compare, v = vector to send

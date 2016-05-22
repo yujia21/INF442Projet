@@ -90,3 +90,11 @@ File: facebook.dat
 Number of procs : 64
 Number of initial relations : 176468 and 176468
 Memory overflow
+File: triangles.dat
+Number of procs : 8
+Number of initial relations : 7 and 7
+Elapsed CPU (Join 1)= 0s
+Number of intermediate relations :9 and 7
+Elapsed CPU (Join 2)= 0s
+Number of final relations :6
+

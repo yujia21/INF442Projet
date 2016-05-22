@@ -16,7 +16,8 @@ int distributeTuple(std::vector<int> v, int index, int m);
 //array[0] is total size = numtasks*max*arity
 //processus i goes from 1+i*max*arity to 1 + (i+1)*max*arity
 //where the jth relation is from 1+i*max*arity + j*arity to 1+i*max*arity + (j+1)*arity
-int* relationToDistArray(Relation* r, int numtasks, int index);
+int* relationToDistArray(Relation* r, int numtasks, int index, double
+hahParameter);
 
 //Join Dist
 Relation::Atom joinDist(Relation* relations1, Relation* relations2,

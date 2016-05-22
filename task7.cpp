@@ -144,9 +144,9 @@ int main (int argc, char **argv) {
       ncommonvar[1] = temp2[2][0];
       
       //Construct array of relation 1 to 3
-      array1 = relationToDistArray(relations1, numtasks, index[0]);
-      array2 = relationToDistArray(relations2, numtasks, index[1]);      
-      array3 = relationToDistArray(relations3, numtasks, index[2]);
+      array1 = relationToDistArray(relations1, numtasks, index[0], 0);
+      array2 = relationToDistArray(relations2, numtasks, index[1], 0);      
+      array3 = relationToDistArray(relations3, numtasks, index[2], 0);
       
       //Get size to send
       sizetosend[0] = array1[0]/numtasks;
@@ -377,7 +377,7 @@ int main (int argc, char **argv) {
             <<a_local.relations->size()<<endl<<endl;
       data.close();
       
-      char* outfile = "testoutput_dist_7";
+      char* outfile = "testoutput_task7";
       a_local.relations->write(outfile);
    }
    

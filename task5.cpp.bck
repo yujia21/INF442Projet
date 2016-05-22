@@ -16,20 +16,13 @@ int main (int argc, char **argv) {
    using namespace std;
    //Initialize MPI
    const int root = 0;
+   int hashParameter = 0;
    
    int numtasks, taskid;
    MPI_Status status;
    MPI_Init(&argc, &argv);
    MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
-   MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
-   
-   //Start clock
-   clock_t tic, toc;
-   struct timeval theTV;
-   struct timezone theTZ;
-   gettimeofday(&theTV, &theTZ);
-   srandom(theTV.tv_usec);
-   tic = clock();
+   MPI_Comm_size(MPI_COMM_WORLD, &numtasks);   
    
    //Create lists, import variable names : 
    //Accessible for all to be able to call join_seq on each
@@ -47,11 +40,12 @@ int main (int argc, char **argv) {
    
    //To write
    char* outputFile;
-   outputFile = "run_data_dist_6.txt";
+   outputFile = "run_data_task5.txt";
+   char* inputFile;
    
    if (taskid==root){      
       //Read file
-      char* inputFile;
+      
       if (argc == 1){
          cout << "Enter input file name : " <<endl;
          inputFile = new char[30];
@@ -64,6 +58,22 @@ int main (int argc, char **argv) {
          inputFile = new char[30];
          cin >> inputFile;
       }
+      string word;
+      cout<<"Enter HashParameter : ";
+      cin >> word;
+      hashParameter = atof(word.c_str());
+   }
+   
+   //Start clock
+   clock_t tic, toc;
+   struct timeval theTV;
+   struct timezone theTZ;
+   gettimeofday(&theTV, &theTZ);
+   srandom(theTV.tv_usec);
+   tic = clock();
+       
+   if(taskid == root)
+   {
    
       //Create relations
       relations1 = new Relation(inputFile);
@@ -73,7 +83,8 @@ int main (int argc, char **argv) {
       //Write initial file details
       ofstream data(outputFile, ios::out | ios::app);      
       data<<"File: "<<inputFile<<endl
-      <<"Number of procs : "<<numtasks<<endl     
+      <<"Number of procs : "<<numtasks<<endl 
+      <<"HashParameter = " <<hashParameter<<endl    
       <<"Number of initial relations : "<<relations1->size()<<" and "
             <<relations2->size()<<endl;
       data.close();
@@ -85,7 +96,8 @@ int main (int argc, char **argv) {
    
    if (taskid==root){cout<<"First Join"<<endl;}
    //Everyone creates a_local, but only root has complete good one
-   Relation::Atom a_local = joinDist(relations1,relations2,list1,list2,root);
+   Relation::Atom a_local =
+         joinDist(relations1,relations2,list1,list2,root,hashParameter);
    //Waits for all to exit join
    MPI_Barrier(MPI_COMM_WORLD);
    
@@ -110,7 +122,8 @@ int main (int argc, char **argv) {
    if (taskid==root){cout<<"Second Join"<<endl;}   
    //Everyone creates a_local_final, but only root has the complete one
    Relation::Atom a_local_final =
-         joinDist(a_local.relations,relations3,a_local.variables,list3,root);
+        
+joinDist(a_local.relations,relations3,a_local.variables,list3,root,hashParameter);
    //Waits for all to exit join
    MPI_Barrier(MPI_COMM_WORLD);
    
@@ -121,14 +134,14 @@ int main (int argc, char **argv) {
    if (taskid == root){
       //Write final runtime and relations data
       toc = clock();
-      ofstream data.open(outputFile, ios::out | ios::app);
+      ofstream data(outputFile, ios::out | ios::app);
       data<< "Elapsed CPU (Join 2)= "
          << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl; 
       data<<"Number of final relations :"
             <<a_local_final.relations->size()<<endl<<endl;
       data.close();
       
-      char* outfile = "testoutput_dist";
+      char* outfile = "testoutput_task5";
       a_local_final.relations->write(outfile);
    }
    
