@@ -21,10 +21,6 @@ int main (int argc, char **argv) {
    cout << "File name is : " << inputFile << endl;
    Relation* relations = new Relation(inputFile);
    
-   //write original
-   char* outfile1 = "testoutput1";
-   relations->write(outfile1);
-   
    //sort in opposite order
    static const int arr2[] = {1,0};
    vector<int> neworder (arr2, arr2 + sizeof(arr2) / sizeof(arr2[0]) );
@@ -32,8 +28,8 @@ int main (int argc, char **argv) {
    relations->sortrelations(neworder);
 
    //write new 
-   char* outfile2 = "testoutput2";
-   relations->write(outfile2);
+   char* outfile = "testoutput_task2";
+   relations->write(outfile);
    
    return 0;
 }

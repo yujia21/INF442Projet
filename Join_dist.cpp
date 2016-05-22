@@ -15,22 +15,21 @@
 
 #include <math.h> //floor
 
-int distributeTuple(std::vector<int> v, int index, int m){ 
-   return v[index] % m;
-}
-
 int distributeTupleHash(std::vector<int> v, int index, int m, double a){ 
    int n = v[index];
-   return (int)floor(m*(a*n-floor(a*n)));
+   if(a == 0)
+      return v[index] % m;
+   else
+      return (int)floor(m*(a*n-floor(a*n)));
 }
 
-int* relationToDistArray(Relation* r, int numtasks, int index){
+int* relationToDistArray(Relation* r, int numtasks, int index, double
+      hashParameter){
    std::vector<std::vector<std::vector<int> > > arranged (numtasks); 
    for (int i = 0; i < r->size(); i++){
       std::vector<int> current = r->getindex(i);
-
-      //int n = distributeTuple(current, index, numtasks); //decomment for task5     
-      int n = distributeTupleHash(current, index, numtasks, 2.3); //decomment for task6
+           
+      int n = distributeTupleHash(current, index, numtasks, hashParameter); 
       arranged[n].push_back(current);
    }
    
@@ -63,7 +62,7 @@ int* relationToDistArray(Relation* r, int numtasks, int index){
 
 Relation::Atom joinDist(Relation* relations1, Relation* relations2,
       std::vector<std::string> list1, std::vector<std::string> list2, 
-      int root){
+      int root, double hashParameter){
    using namespace std;
    int numtasks, taskid;
    MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
@@ -92,8 +91,8 @@ Relation::Atom joinDist(Relation* relations1, Relation* relations2,
       ncommonvar = temp[2][0];
       
       //Construct array of relation 1 and 2
-      array1 = relationToDistArray(relations1, numtasks, index1);
-      array2 = relationToDistArray(relations2, numtasks, index2);      
+      array1 = relationToDistArray(relations1, numtasks, index1, hashParameter);
+      array2 = relationToDistArray(relations2, numtasks, index2, hashParameter);      
       
       //Get size to send
       sizetosend1 = array1[0]/numtasks;

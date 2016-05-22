@@ -29,8 +29,8 @@ int* relationToDistArray(Relation* r, int numtasks, int index){
    for (int i = 0; i < r->size(); i++){
       std::vector<int> current = r->getindex(i);
 
-      //int n = distributeTuple(current, index, numtasks);      
-      int n = distributeTupleHash(current, index, numtasks, 2.3); //decomment for task6
+      int n = distributeTuple(current, index, numtasks); //decomment for task5     
+      //int n = distributeTupleHash(current, index, numtasks, 2.3); //decomment for task6
       arranged[n].push_back(current);
    }
    

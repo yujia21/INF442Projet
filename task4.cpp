@@ -28,7 +28,7 @@ int main (int argc, char **argv) {
    Relation* relations2 = new Relation(inputFile);   
    Relation* relations3 = new Relation(inputFile);      
    
-   ofstream data("run_data.txt", ios::out | ios::app);
+   ofstream data("run_data_task4.txt", ios::out | ios::app);
    data<<"File: "<<inputFile<<endl
       <<"Number of initial relations : "<<relations1->size()<<endl;
    data.close();
@@ -66,7 +66,7 @@ int main (int argc, char **argv) {
    
    //Write intermediate runtime and relations data
    toc = clock();
-   data.open("run_data.txt", ios::out | ios::app);   
+   data.open("run_data_task4.txt", ios::out | ios::app);   
    data<< "Elapsed CPU (Join 1)= "
       << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl; 
    data<<"Number of intermediate relations : "<<relationsInt->size()<<endl;
@@ -91,7 +91,7 @@ int main (int argc, char **argv) {
    relationsfinal->printdata();   
    
    //Write new relations to file
-   char* outfile = "testoutput";
+   char* outfile = "testoutput_task4";
    relationsfinal->write(outfile);
    
    //Get final time   
@@ -100,7 +100,7 @@ int main (int argc, char **argv) {
        << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl; 
    
    //Write final runtime and relations data
-   data.open("run_data.txt", ios::out | ios::app);   
+   data.open("run_data_task4.txt", ios::out | ios::app);   
    data<<"Number of final relations : "<<relationsfinal->size()<<endl
       << "Elapsed CPU (Join 2)= "
       << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl<<endl; 

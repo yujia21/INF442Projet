@@ -1,6 +1,5 @@
 #include "Relation.hpp"
 #include "Join_seq.hpp"
-#include "Join_dist.hpp"
 
 #include "mpi.h" //mpi
 
@@ -12,28 +11,21 @@
 #include <time.h> //track runtime
 #include <sys/time.h>  //track runtime
 
+#include <math.h> //floor
 
-//TO DO : coder les fonctions de hachage !!
-
-int hash1(int n){
-   return n%2;
+//hash function
+/*
+   return an integer between 0 and M-1
+   A is a hashing parameter
+*/
+int hash(const int M, const double A, const int n){
+   return (int)floor(M*(A*n-floor(A*n)));
 }
 
-int hash2(int n){
-   return n%2;
-}
-
-int hash3(int n){
-   return n%2;
-}
-
-
-//Return the number corrersponding to a given triple
-//We use here 27 machines
-
-int machineNumber(int a, int b, int c)
+//Return the machine number corrersponding to a given triple
+int machineNumber(const int m1,const int m2,const int m3, const int M1_max, const int M2_max)
 {
-   return (a + b*3 + c*9);
+   return (m1 + m2*M1_max + m3*M1_max*M2_max);
 }
 
 
@@ -49,21 +41,16 @@ int maxSize(const std::vector<std::vector<std::vector<int> > > vect)
 }
 
 
-void completeBigArray(const std::vector<std::vector<std::vector<int> > > relationToDistribute, int* bigArray, int maxSize)
+void completeBigArray(const std::vector<std::vector<std::vector<int> > > relationToDistribute, int* bigArray, int maxSize, int numtasks)
 {
-   //DEBUG
-   std::cout<<"completeBigArray called"<<std::endl<<std::endl;
    
-  for(int i=0; i<27; i++)
-      {                 
-         
-         //DEBUG
-         std::cout<<"Machine "<< i << " done"<<std::endl;
+  for(int i=0; i<numtasks; i++)
+      {                               
          
          for(int j=0; j<relationToDistribute[i].size(); j++)                  //On remplit en mettant les couples bout a bout
          {
             bigArray[i*2*maxSize+2*j] = relationToDistribute[i][j][0];
-            std::cout<<"First affectation done"<<std::endl;
+            
             bigArray[i*2*maxSize+2*j+1] = relationToDistribute[i][j][1];
          }
                         
@@ -83,11 +70,37 @@ int main (int argc, char **argv) {
    
    const int root = 0;   
    int numtasks, taskid;
+   int M1=0,   M2=0,    M3=0;
    
    MPI_Status status;
    MPI_Init(&argc, &argv);
    MPI_Comm_rank(MPI_COMM_WORLD, &taskid);
    MPI_Comm_size(MPI_COMM_WORLD, &numtasks);
+   
+   //choose M1 M2 and M3 such that M1*M2*M3 = numtasks
+   if(taskid==root)
+   {
+   
+      while(numtasks != M1*M2*M3)
+         {
+            cout << "Enter M1 : ";
+            cin >> M1;
+         
+            cout << "Enter M2 : ";
+            cin >> M2;
+         
+            cout << "Enter M3 : ";
+            cin >> M3;
+         }   
+   }
+   
+   //Start clock
+   clock_t tic, toc;
+   struct timeval theTV;
+   struct timezone theTZ;
+   gettimeofday(&theTV, &theTZ);
+   srandom(theTV.tv_usec);
+   tic = clock();
       
    //Create lists, import variable names : 
    //Accessible for all to be able to call join_seq on each
@@ -101,14 +114,14 @@ int main (int argc, char **argv) {
    vector<string> list3 (arr3, arr3 + sizeof(arr3) / sizeof(arr3[0]) );  
 
    //For broadcast. Relations initialized on all, to be able to be accessed later
-   Relation* relations;
-   Relation* relations1;
-   Relation* relations2;
-   Relation* relations3;      
+   Relation* relation;
+   Relation* localRelation1 = new Relation();
+   Relation* localRelation2 = new Relation();
+   Relation* localRelation3 = new Relation();      
    
    //To write
    char* outputFile;
-   outputFile = "run_data_dist_6.txt";
+   outputFile = "run_data_dist_8.txt";
    
    if (taskid==root){  
           
@@ -128,15 +141,15 @@ int main (int argc, char **argv) {
          cin >> inputFile;
       }
    
-      //Create relations1
-      relations = new Relation(inputFile);
+      //Create relations
+      relation = new Relation(inputFile);
       
             
       //Write initial file details
       ofstream data(outputFile, ios::out | ios::app);      
       data<<"File: "<<inputFile<<endl
       <<"Number of procs : " << numtasks << endl     
-      <<"Number of initial relations : "<< relations1->size() << endl;
+      <<"Number of initial relations : "<< relation->size() << endl;
       data.close();
       
    }
@@ -148,56 +161,76 @@ int main (int argc, char **argv) {
    int * bigArrayToDistribute2;
    int * bigArrayToDistribute3;
    
-   int maxSize1 = 0;
-   int maxSize2 = 0;
-   int maxSize3 = 0;
+   int maxSize1;
+   int maxSize2;
+   int maxSize3;
    
-   int * localArray1;
-   int * localArray2;
-   int * localArray3;
+   int * localArray1 = 0;
+   int * localArray2 = 0;
+   int * localArray3 = 0;
    
-      
+   
    if (taskid==root){
-      
+               
       int indexToPush;
       
-      vector<vector<vector<int> > > relationsToDistribute1 (numtasks);
-      vector<vector<vector<int> > > relationsToDistribute2 (numtasks);
-      vector<vector<vector<int> > > relationsToDistribute3 (numtasks);
+      vector<vector<vector<int> > > relationToDistribute1 (numtasks);
+      vector<vector<vector<int> > > relationToDistribute2 (numtasks);
+      vector<vector<vector<int> > > relationToDistribute3 (numtasks);
+      
+      
+      double a1=0.3, a2=0.4,  a3=0.5;
       
       //Create vector to Distribute
-      for(int i=0; i<relations->size(); i++)
+      for(int i=0; i<relation->size(); i++)
       {                                                                                          
-         vector<int> curentTuple = relations->getindex(i);
+         vector<int> curentTuple = relation->getindex(i);
          
-         for(int j=0; j<3; j++)
-         {
-         indexToPush = machineNumber(hash1(curentTuple[0]),hash2(curentTuple[1]),j);
-         relationsToDistribute1[indexToPush].push_back(curentTuple);
+         for(int j=0; j<M3; j++){
          
-         indexToPush = machineNumber(j, hash2(curentTuple[0]), hash3(curentTuple[1]));
-         relationsToDistribute2[indexToPush].push_back(curentTuple);
+            indexToPush = machineNumber(hash(M1,a1,curentTuple[0]),hash(M2,a2,curentTuple[1]),j,M1,M2);         
+            relationToDistribute1[indexToPush].push_back(curentTuple);
+         }
          
-         indexToPush = machineNumber(hash1(curentTuple[1]), j, hash3(curentTuple[0]));
-         relationsToDistribute3[indexToPush].push_back(curentTuple);
+         for(int j=0; j<M1; j++){  
+                
+            indexToPush = machineNumber(j, hash(M2,a2,curentTuple[0]), hash(M3,a3,curentTuple[1]),M1,M2);         
+            relationToDistribute2[indexToPush].push_back(curentTuple);
+         }
          
+         for(int j=0; j<M2; j++){
+            
+            indexToPush = machineNumber(hash(M1,a1,curentTuple[1]), j, hash(M3,a3,curentTuple[0]),M1,M2);         
+            relationToDistribute3[indexToPush].push_back(curentTuple);         
          }
       }
       
-      for(int k=0; k<27; k++)
+      //DEBUG
+      //Affichage des donnees recues par chaque machine
+      for(int k=0; k<numtasks; k++)
       {
-         cout<<"For machine " << k << " : " << relationsToDistribute2[k].size() << endl;
+         if(k<10)
+         cout<<"ID  ";
+         else
+         cout<<"ID ";
+         
+         cout  << k << " : " 
+               <<relationToDistribute1[k].size() <<"  " 
+               <<relationToDistribute2[k].size() <<"  " 
+               <<relationToDistribute3[k].size() 
+               <<endl;
       }
             
       //On supprime les relations lues 
-      relations->~Relation();
+      relation->~Relation();
       
       //Calcul les tailles max
-      int maxSize1 = maxSize(relationsToDistribute1);
-      int maxSize2 = maxSize(relationsToDistribute2);
-      int maxSize3 = maxSize(relationsToDistribute3);
+      maxSize1 = maxSize(relationToDistribute1);
+      maxSize2 = maxSize(relationToDistribute2);
+      maxSize3 = maxSize(relationToDistribute3);
       
       //DEBUG
+      cout<<endl;
       cout<<"MaxSizes Read"<<endl;
       cout<<"maxSize1 = " << maxSize1<<endl;
       cout<<"maxSize2 = " << maxSize2<<endl;
@@ -209,156 +242,122 @@ int main (int argc, char **argv) {
       bigArrayToDistribute1 = new int[2*numtasks*maxSize1];
       bigArrayToDistribute2 = new int[2*numtasks*maxSize2];
       bigArrayToDistribute3 = new int[2*numtasks*maxSize3];
-      
-      //On remplit les tableaux a partir des relations a distribuer      
-      completeBigArray(relationsToDistribute1, bigArrayToDistribute1, maxSize1);
-      
-      //DEBUG
-      cout<<"Big Arrays number1 Completed"<<endl<<endl;
-      
-      //DEBUG
-      /*
-      for(int k=0; k<numtasks*maxSize1; k++)
-      {
-         cout<< bigArrayToDistribute1[2*k]<< " "<< bigArrayToDistribute1[2*k+1];
-         cout<<endl;
-      }
-      */
-      cout<<endl; 
-      
-      completeBigArray(relationsToDistribute2, bigArrayToDistribute2, maxSize2);
-      
             
-      //DEBUG
-      cout<<"Big Arrays number2 Completed"<<endl<<endl;
+      //On remplit les tableaux a partir des relations a distribuer      
+      completeBigArray(relationToDistribute1, bigArrayToDistribute1, maxSize1, numtasks);                 
+      completeBigArray(relationToDistribute2, bigArrayToDistribute2, maxSize2, numtasks);      
+      completeBigArray(relationToDistribute3, bigArrayToDistribute3, maxSize3, numtasks);
       
-      completeBigArray(relationsToDistribute3, bigArrayToDistribute3, maxSize3);
-      
-      //DEBUG
-      cout<<"Big Arrays number3 Completed"<<endl<<endl;
-      
-      //DEBUG
-      cout<<"Big Arrays Completed"<<endl<<endl;
-      
-      vector<vector<vector<int> > > ().swap(relationsToDistribute1);
-      vector<vector<vector<int> > > ().swap(relationsToDistribute2);
-      vector<vector<vector<int> > > ().swap(relationsToDistribute3);      
+      //Liberation de la mémoire      
+      vector<vector<vector<int> > > ().swap(relationToDistribute1);
+      vector<vector<vector<int> > > ().swap(relationToDistribute2);
+      vector<vector<vector<int> > > ().swap(relationToDistribute3);                 
                 
    }
-   
-   MPI_Bcast(&maxSize1, 1, MPI_INT, root, MPI_COMM_WORLD);
+            
+   MPI_Bcast(&maxSize1, 1, MPI_INT, root, MPI_COMM_WORLD); 
    MPI_Bcast(&maxSize2, 1, MPI_INT, root, MPI_COMM_WORLD);
    MPI_Bcast(&maxSize3, 1, MPI_INT, root, MPI_COMM_WORLD);
-   
+               
    //Allocation m2moire des tableaux locaux
    localArray1 = new int[2*maxSize1];
    localArray2 = new int[2*maxSize2];
    localArray3 = new int[2*maxSize3];
    
-   MPI_Scatter(bigArrayToDistribute1, maxSize1, MPI_INT, localArray1, maxSize1, MPI_INT, root, MPI_COMM_WORLD);
-   MPI_Scatter(bigArrayToDistribute2, maxSize2, MPI_INT, localArray2, maxSize2, MPI_INT, root, MPI_COMM_WORLD);
-   MPI_Scatter(bigArrayToDistribute3, maxSize3, MPI_INT, localArray3, maxSize3, MPI_INT, root, MPI_COMM_WORLD);
+   MPI_Scatter(bigArrayToDistribute1, 2*maxSize1, MPI_INT, localArray1, 2*maxSize1, MPI_INT, root, MPI_COMM_WORLD);
+   MPI_Scatter(bigArrayToDistribute2, 2*maxSize2, MPI_INT, localArray2, 2*maxSize2, MPI_INT, root, MPI_COMM_WORLD);
+   MPI_Scatter(bigArrayToDistribute3, 2*maxSize3, MPI_INT, localArray3, 2*maxSize3, MPI_INT, root, MPI_COMM_WORLD);
    
-   delete[] bigArrayToDistribute1;
-   delete[] bigArrayToDistribute2;
-   delete[] bigArrayToDistribute3;
+   MPI_Barrier(MPI_COMM_WORLD);
    
+   if(taskid == root)
+   {      
+      delete[] bigArrayToDistribute1;
+      delete[] bigArrayToDistribute2;
+      delete[] bigArrayToDistribute3;
+   }
    
-   relations1->importArray(localArray1, maxSize1, 2);
-   relations2->importArray(localArray2, maxSize2, 2);
-   relations3->importArray(localArray3, maxSize3, 2);
-   
+   localRelation1->importArray(localArray1, 2*maxSize1, 2);     
+   localRelation2->importArray(localArray2, 2*maxSize2, 2);
+   localRelation3->importArray(localArray3, 2*maxSize3, 2);
+       
    delete[] localArray1;
    delete[] localArray2;
-   delete[] localArray3;   
+   delete[] localArray3;
    
-   Relation::Atom a1 = join(relations1,relations2,list1,list2);
-   
+   Relation::Atom localAtome1 = join(localRelation1,localRelation2,list1,list2);
+      
    //Create third atom
-   Relation::Atom* a2 = new Relation::Atom(relations3, list3);
+   Relation::Atom* localAtome2 = new Relation::Atom(localRelation3, list3);
    
    //Call join   
-   Relation::Atom a3 = join(&(a1),a2); 
+   Relation::Atom localAtome3 = join(&(localAtome1),localAtome2); 
       
    //Creation du tableau de triangles local
-   int localTrianglesArraySize = (a3.relations)->size();   
+   int localTrianglesArraySize = 3*((localAtome3.relations)->size());
+       
    int* localTrianglesArray = new int[localTrianglesArraySize];   
-   (a3.relations)->toArray(localTrianglesArraySize, localTrianglesArray);
+   (localAtome3.relations)->toArray(localTrianglesArraySize, localTrianglesArray);
    
+   MPI_Barrier(MPI_COMM_WORLD);
+            
    //Creation du tableau des tailles des tableaux de triangles
-   int* recvCount = new int[numtasks];          
+   int* recvCount = new int[numtasks];
+             
    MPI_Gather(&localTrianglesArraySize, 1, MPI_INT, recvCount, 1, MPI_INT, root, MPI_COMM_WORLD);
-   
+         
    int* displs = new int[numtasks];
-   displs[0] = 0;
+   
+   if(taskid == root)
+   {
+      displs[0] = 0;
       
-   for (int j = 1; j < numtasks; j++){
-      displs[j]=displs[j-1]+recvCount[j-1];         
+      for (int j = 1; j < numtasks; j++)
+         displs[j]=displs[j-1]+recvCount[j-1];         
+       
    }
     
    //Creation du tableau de triangles global
    int* globalTrianglesArray;
-   int globalTriangleArraySize =0;
+   int globalTriangleArraySize;
    
    //Allocation memoire du tableau de triangles global (seulement pour le root)
    if(taskid == root){
       globalTriangleArraySize = displs[numtasks-1]+recvCount[numtasks-1];
       globalTrianglesArray = new int[globalTriangleArraySize];
    }
+   
+   MPI_Barrier(MPI_COMM_WORLD);    
          
-   MPI_Gatherv(localTrianglesArray, numtasks, MPI_INT, globalTrianglesArray, recvCount, displs, MPI_INT, root, MPI_COMM_WORLD);
+   MPI_Gatherv(localTrianglesArray, localTrianglesArraySize, MPI_INT, globalTrianglesArray, recvCount, displs, MPI_INT, root, MPI_COMM_WORLD);
+       
+   MPI_Barrier(MPI_COMM_WORLD);
    
    delete[] localTrianglesArray;
             
-   Relation* triangles;
+   Relation* triangles = new Relation();
    
-   if (taskid == root){
+   if (taskid == root){    
    triangles->importArray(globalTrianglesArray, globalTriangleArraySize, 3);
-   triangles->toPrint();
+   delete[] globalTrianglesArray;
    }
+   
+   
+   //Return atom of root
+   if (taskid == root){
+      //Write final runtime and relations data
+      toc = clock();
+      ofstream data(outputFile, ios::out | ios::app);
+      data<< "Elapsed CPU = "
+         << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl; 
+      data<<"Number of final relations :"
+            <<triangles->size()<<endl<<endl;
+      data.close();
+      
+      char* outfile = "testoutput_task8";
+      triangles->write(outfile);
+   }
+   
    
    MPI_Finalize();     
 }
-
-
-/*
-yay
-int main(argv blabla)
-argv = file name of relations
-
-init mpi
-
-m = m1*m2*m3
-
-define hash functions : h1 h2 h3 
-(structure that takes in int)
-
-function that converts from machine # (a, b, c) <-> n
-(0 1 2) multiply by 1 3 9
-
-if root:
-   construct 3 atoms
-   construct 3 <vector <vector <vector <int > > > for r1, r2, r3
-   for r1
-      for vector<int> (t,t') in relation
-         put into machine n1/2/3 where n = (h1(t), h2(t'), 1/2/3)
-   do similar for r2 and r3
-         
-on all
-   from vector<vector<int>> make relations
-   join_seq
-   create <vector<vector<int>> to send back
-
-gather
-
-if root:
-   insert all vector<vector<int>> back into finalrelation
-
-
-part 1 : 
-m1 = m2 = m3
-
-part 2:
-diff m1, m2, m3
-
-*/

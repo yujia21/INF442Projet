@@ -25,7 +25,7 @@ int main (int argc, char **argv) {
    relations->printdata();
    
    //write file
-   char* outfile = "testoutput1";
+   char* outfile = "testoutput_task1";
    relations->write(outfile);
    //relations->write(outfile, 0, 5);
    

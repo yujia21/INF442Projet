@@ -3,8 +3,6 @@
 
 #include "Relation.hpp"
 #include "Join_seq.hpp"
-#include <string>
-#include <vector>
 
 //TASK 5 
 //given : m = total number of machines, index = column to compare, v = vector to send
