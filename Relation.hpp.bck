@@ -11,15 +11,25 @@ private:
    std::vector<std::vector<int> > relations;
 
 public: 
+   int size();
+   int arity();
+   
    //TASK 1
    Relation();
    Relation(char * infile);
    ~Relation();
    
-   void printdata();
+   //prints number of relations and arity on console
+   void printdata(); 
+   
+   //prints relations on console
+   void toPrint(); 
    
    void write(char* outfile);   
    void write(char* outfile, int start, int end);
+   
+   void addrelation(std::vector<int> r);
+   std::vector<int> getindex(int i);
 
    //TASK 2
    void sortrelations(std::vector<int> order);
@@ -32,25 +42,20 @@ public:
    };
    
    //TASK 3 and 4
-   
    struct Atom{
       Atom();
+      ~Atom();
       Atom(Relation* relations, std::vector<std::string> variables);
       Relation* relations;
       std::vector<std::string> variables;
    };
    
-   void addrelation(std::vector<int> r);
-   int size();
-   int arity();
-   std::vector<int> getindex(int i);
-      
    //TASK 5
-   void importArray(int* array, int size, int arity); 
    //takes a 1d array of size,ignores negative. Needs arity to start construction
+   void importArray(int* array, int size, int arity); 
    
-   void toArray(int maxsize, int* array); //makes a 1d array
-   void toPrint();
+   //makes a 1d array, feels everything from relations.size to maxsize with -1
+   void toArray(int maxsize, int* array); 
 };
 
 #endif
