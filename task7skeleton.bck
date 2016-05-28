@@ -1,0 +1,111 @@
+/* Converts vector of vector of int to 1Darray (to use alltoallv).
+Vector of vector of int contains all relations to send to all processus, in order
+first n1 vectors to proc 1, next n2 to proc 2, ni to proc i etc.*/
+int* vectToArray(std::vector<std::vector<int> > vect);
+
+/* Takes relation, machine to send to, column of comparison, total number of machines
+Returns a vector of relations to send to machine "recv"*/
+std::vector<std::vector<int> > relationToDistArrayOptimized(Relation* r, int recv, int index, int m);
+
+int main (int argc, char **argv) {
+   //Initialize MPI
+   //Start clock
+   //Create lists, import variable names for r1,r2,r3
+
+   //Initialize r1,r2,r3 as empty relations      
+
+   //IF ROOT
+      //Read file
+      //Create relations r1 to 3
+
+   //MPI_Barrier : Waits for all to reach this point
+   
+   //Initialize arrays for scatter and gathering
+   
+   //IF ROOT
+      //Get common vars for r1 r2
+      //Create list of vars for (r1r2) = r4
+      //Get common vars for r3 r4
+      //Construct array of relation 1 to 3
+      //Get size to send of each
+      //Calculates all 4 arity-s
+
+   //MPI_Bcast arity, sizetosend, index, ncommonvar
+   
+   //Initialize receiving arrays
+   // Scatter data
+   //Construct relation from array received
+   //Call join seq on each
+
+   //Reset or initialize list4 on each proc
+   //MPI_Scatter : each proc receives relation3 relations
+   
+   //MPI_Alltoallv : each proc i sends direct to proc j what is needed
+   //1. Create array of relations to send on each proc
+   //2. Stock the size of this array
+   //3. Calculate variables for alltoallv
+   //4. MPI_Alltoall so proc j knows how much to receive from proc i
+   //5. Calculates displacement for sending and receiving on each proc
+   //6. MPI_Alltoallv
+   
+   //Create r4 relation
+   //Each join seq on r3 and r4
+   //Find max of a_local relation size, and Bcast to all
+   int finalarity = arity[2]+arity[3]-ncommonvar[1];
+   int localsize = finalarity*a_local.relations->size();
+   int maxlocalsize;
+   MPI_Reduce(&localsize, &maxlocalsize, 1, MPI_INT, MPI_MAX, root, MPI_COMM_WORLD);
+   MPI_Bcast(&maxlocalsize, 1, MPI_INT, root, MPI_COMM_WORLD);
+   
+   //Create array to send back to root
+   int* finalarraylocal;
+   finalarraylocal=new int[maxlocalsize]; 
+   
+   if (localsize==0){
+      for (int i = 0; i<maxlocalsize;i++){
+         finalarraylocal[i]=-1;
+      }
+   } else {
+      a_local.relations->toArray(maxlocalsize, finalarraylocal); 
+   }
+   
+   int* finalarray;
+   finalarray = new int[maxlocalsize*numtasks];
+
+   // Gather 
+   MPI_Gather(finalarraylocal, maxlocalsize, MPI_INT, finalarray, maxlocalsize, MPI_INT,
+         root, MPI_COMM_WORLD);
+   
+   // Free finalarraylocal. Barrier before importArray, because importArray takes memory
+   delete[] finalarraylocal;
+   MPI_Barrier(MPI_COMM_WORLD);
+   
+   if (taskid == root){
+      // Take array and put back in relation
+      a_local.relations = new Relation();
+      a_local.relations->importArray(finalarray, maxlocalsize*numtasks,finalarity); //memory can leak here
+      
+      cout<<"Post join size of relations : "<<a_local.relations->size()<<endl;
+   }
+   
+   // Free finalarray
+   delete[] finalarray;
+
+   //Return atom of root
+   if (taskid == root){
+      
+      //Write final runtime and relations data
+      toc = clock();
+      ofstream data(outputFile, ios::out | ios::app);
+      data<< "Elapsed CPU = "
+         << (toc - tic) / ((float)(CLOCKS_PER_SEC)) << "s" << endl; 
+      data<<"Number of final relations :"
+            <<a_local.relations->size()<<endl<<endl;
+      data.close();
+      
+      char* outfile = "testoutput_task7";
+      a_local.relations->write(outfile);
+   }
+   
+   MPI_Finalize();     
+}
